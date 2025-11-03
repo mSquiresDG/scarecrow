@@ -1131,6 +1131,56 @@
           }
         }
       }
+    },
+    {
+      "uuid": "db9828d41f052ccb",
+      "class": "GAME.CrowSpawnerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CrowSpawner"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "c8d58680-15ca-44dc-8673-7cdf5dfa252d",
+          "properties": {
+            "position": [
+              -1.01,
+              0,
+              -1.09,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "33423b3a2421a6a7",
+      "class": "GAME.CrowSpawnerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CrowSpawner_02"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "ceb411497d897277",
+          "properties": {
+            "position": [
+              -1.91,
+              0,
+              -0.06,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
     }
   ],
   "properties": {
@@ -1297,6 +1347,14 @@
           },
           {
             "id": "63dc66ff21ef2cf2",
+            "nodeType": "actor"
+          },
+          {
+            "id": "db9828d41f052ccb",
+            "nodeType": "actor"
+          },
+          {
+            "id": "33423b3a2421a6a7",
             "nodeType": "actor"
           }
         ]

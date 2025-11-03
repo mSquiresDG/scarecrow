@@ -57,7 +57,18 @@ export class CrowActor extends ENGINE.Actor {
     this.targetCrop = crop;
     this.targetCropMarker = markerName;
     if (crop) {
-      console.log(`[CrowActor] ${this.name} targeting crop: ${crop.name} at marker: ${markerName}`);
+      const crowPos = this.getWorldPosition();
+      const targetPos = crop.getWorldPosition();
+      const horizontalDistance = Math.sqrt(
+        Math.pow(targetPos.x - crowPos.x, 2) + 
+        Math.pow(targetPos.z - crowPos.z, 2)
+      );
+      const totalDistance = crowPos.distanceTo(targetPos);
+      
+      console.log(`[CrowActor] 🎯 ${this.name} targeting crop: ${crop.name} at marker: ${markerName}`);
+      console.log(`[CrowActor]    📍 Crow start:   (${crowPos.x.toFixed(4)}, ${crowPos.y.toFixed(4)}, ${crowPos.z.toFixed(4)})`);
+      console.log(`[CrowActor]    🎯 Target pivot:  (${targetPos.x.toFixed(4)}, ${targetPos.y.toFixed(4)}, ${targetPos.z.toFixed(4)})`);
+      console.log(`[CrowActor]    📏 Horizontal distance: ${horizontalDistance.toFixed(2)}m | Total 3D distance: ${totalDistance.toFixed(2)}m`);
     }
   }
 
@@ -143,46 +154,48 @@ export class CrowActor extends ENGINE.Actor {
     if (this.isLanded || !this.targetCrop) return;
     
     const currentPos = this.getWorldPosition();
-    const targetPos = this.targetCrop.getWorldPosition();
+    const targetPos = this.targetCrop.getWorldPosition(); // Crop's root pivot position
     
-    // Calculate horizontal distance to target
-    const horizontalDirection = new THREE.Vector3(
-      targetPos.x - currentPos.x,
-      0,
-      targetPos.z - currentPos.z
-    );
-    const horizontalDistance = horizontalDirection.length();
+    // Calculate direct 3D direction from current position to target
+    const direction = new THREE.Vector3().subVectors(targetPos, currentPos);
+    const distance = direction.length();
     
-    // Move toward target horizontally (fly there first)
-    if (horizontalDistance > 0.3) {
-      // Still flying to the crop - move horizontally only
-      horizontalDirection.normalize();
-      const newPos = currentPos.clone();
-      newPos.x += horizontalDirection.x * this.descendSpeed * deltaTime;
-      newPos.z += horizontalDirection.z * this.descendSpeed * deltaTime;
-      // Keep same height while flying
+    // Threshold for arrival - very small for precision
+    const arrivalThreshold = 0.05; // 5cm precision
+    
+    // Check if we've arrived
+    if (distance <= arrivalThreshold) {
+      this.isLanded = true;
       
-      this.setWorldPosition(newPos);
+      // Snap crow's root pivot EXACTLY to crop's root pivot
+      const finalPos = targetPos.clone();
+      this.setWorldPosition(finalPos);
+      
+      // Calculate time taken and position accuracy
+      const world = this.getWorld();
+      const currentTime = world ? world.getGameTime() : 0;
+      const timeTaken = currentTime - this.spawnTime;
+      
+      // Measure final position accuracy
+      const finalCrowPos = this.getWorldPosition();
+      const distanceError = finalCrowPos.distanceTo(targetPos);
+      
+      console.log(`[CrowActor] 🦅 ${this.name} LANDED at crop "${this.targetCrop.name}" (marker "${this.targetCropMarker}")`);
+      console.log(`[CrowActor]    ⏱️  Time taken: ${timeTaken.toFixed(2)}s`);
+      console.log(`[CrowActor]    🎯 Target pivot: (${targetPos.x.toFixed(4)}, ${targetPos.y.toFixed(4)}, ${targetPos.z.toFixed(4)})`);
+      console.log(`[CrowActor]    📍 Crow pivot:   (${finalCrowPos.x.toFixed(4)}, ${finalCrowPos.y.toFixed(4)}, ${finalCrowPos.z.toFixed(4)})`);
+      console.log(`[CrowActor]    📏 Position error: ${(distanceError * 100).toFixed(2)}cm`);
     } else {
-      // Above target crop - now descend straight down
-      const newPos = currentPos.clone();
-      newPos.y -= this.descendSpeed * deltaTime;
-      this.setWorldPosition(newPos);
+      // Move in a straight line towards target (linear interpolation)
+      direction.normalize();
+      const moveDistance = this.descendSpeed * deltaTime;
       
-      // Check if landed (y <= 0.05)
-      if (newPos.y <= 0.05) {
-        this.isLanded = true;
-        // Snap to ground
-        newPos.y = 0.05;
-        this.setWorldPosition(newPos);
-        
-        // Calculate time taken
-        const world = this.getWorld();
-        const currentTime = world ? world.getGameTime() : 0;
-        const timeTaken = currentTime - this.spawnTime;
-        
-        console.log(`[CrowActor] 🦅 ${this.name} LANDED at crop "${this.targetCrop.name}" (marker "${this.targetCropMarker}") - Time taken: ${timeTaken.toFixed(2)}s`);
-      }
+      // Don't overshoot - clamp movement to remaining distance
+      const actualMoveDistance = Math.min(moveDistance, distance);
+      
+      // Calculate new position by moving along the direction vector
+      const newPos = currentPos.clone().add(direction.multiplyScalar(actualMoveDistance));
+      this.setWorldPosition(newPos);
     }
   }
 

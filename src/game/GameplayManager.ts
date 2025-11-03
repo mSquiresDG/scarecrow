@@ -2,6 +2,7 @@ import * as ENGINE from 'genesys.js';
 import * as THREE from 'three';
 import { CropMarkerActor } from '../actors/CropMarkerActor.js';
 import { CrowActor } from '../actors/CrowActor.js';
+import { CrowSpawnerActor } from '../actors/CrowSpawnerActor.js';
 
 /**
  * Wave configuration for the gameplay
@@ -50,6 +51,7 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
   private cropMarkers: CropMarkerActor[] = [];
   private spawnedCrops: ENGINE.Actor[] = [];
   private activeCrows: CrowActor[] = [];
+  private crowSpawners: CrowSpawnerActor[] = [];
   private uiContainer: HTMLElement | null = null;
   private startButton: HTMLButtonElement | null = null;
   private messageOverlay: HTMLElement | null = null;
@@ -180,6 +182,17 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     
     console.log('[GameplayManager] ========== GAME STARTED ==========');
     this.gameStarted = true;
+    
+    // Find all crow spawners in the scene
+    const world = this.getWorld();
+    if (world) {
+      this.crowSpawners = world.getActors(CrowSpawnerActor);
+      console.log(`[GameplayManager] Found ${this.crowSpawners.length} crow spawners in scene`);
+      
+      if (this.crowSpawners.length === 0) {
+        console.warn('[GameplayManager] ⚠️ No CrowSpawnerActor found in scene! Please place some in the editor.');
+      }
+    }
     
     if (this.startButton) {
       this.startButton.style.display = 'none';
@@ -327,14 +340,18 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     const world = this.getWorld();
     if (!world) return;
 
-    // Random position in 4x4 meter area
-    const randomX = (Math.random() - 0.5) * 4;
-    const randomZ = (Math.random() - 0.5) * 4;
-    const spawnY = 2.0;
+    // Check if we have any spawners
+    if (this.crowSpawners.length === 0) {
+      console.warn('[GameplayManager] ⚠️ Cannot spawn crow - no CrowSpawnerActor in scene!');
+      return;
+    }
+
+    // Pick a random spawner
+    const randomSpawner = this.crowSpawners[Math.floor(Math.random() * this.crowSpawners.length)];
+    const spawnPos = randomSpawner.getSpawnPosition();
+    const spawnerName = randomSpawner.editorData.displayName || randomSpawner.name;
     
-    const spawnPos = new THREE.Vector3(randomX, spawnY, randomZ);
-    
-    // Create CrowActor directly
+    // Create CrowActor at spawner position
     const crow = new CrowActor({
       position: spawnPos
     });
@@ -342,7 +359,7 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     world.addActor(crow);
     crow.setDescendSpeed(speed);
     
-    // Assign RANDOM crop instead of nearest
+    // Assign RANDOM crop to target
     const randomCrop = this.findRandomCrop();
     const randomCropName = randomCrop?.editorData.displayName || randomCrop?.name;
     
@@ -362,7 +379,7 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     
     this.activeCrows.push(crow);
     
-    console.log(`[GameplayManager] 🐦 SPAWNED BIRD "${crow.name}" at position (X:${randomX.toFixed(2)}, Y:${spawnY.toFixed(2)}, Z:${randomZ.toFixed(2)}) → targeting crop "${randomCropName}" at marker "${markerName}"`);
+    console.log(`[GameplayManager] 🐦 SPAWNED BIRD "${crow.name}" at spawner "${spawnerName}" (X:${spawnPos.x.toFixed(2)}, Y:${spawnPos.y.toFixed(2)}, Z:${spawnPos.z.toFixed(2)}) → targeting crop "${randomCropName}" at marker "${markerName}"`);
   }
 
   private findRandomCrop(): ENGINE.Actor | null {

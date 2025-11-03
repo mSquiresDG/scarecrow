@@ -215,8 +215,7 @@ export class CrowActor extends ENGINE.Actor {
       console.error('[CrowActor] No GLTFMeshComponent found!');
     }
     
-    // Start 30-second deadline timer
-    this.startDeadlineTimer(30.0);
+    // Note: Deadline timer is now started by GameplayManager with adjusted time
   }
 
   /**

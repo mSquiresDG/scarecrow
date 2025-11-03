@@ -58,6 +58,8 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
   private waveTimeoutTimer: any = null; // Timer for wave timeout (2x wave duration)
   private totalCrowsToSpawn: number = 0; // Total crows for current wave
   private crowsSpawnedThisWave: number = 0; // How many crows have been spawned so far
+  private currentWaveSpeed: number = 1.0; // Current wave's speed multiplier
+  private allCropsEatenTimer: any = null; // Timer for when all crops are eaten
   private uiContainer: HTMLElement | null = null;
   private startButton: HTMLButtonElement | null = null;
   private messageOverlay: HTMLElement | null = null;
@@ -216,6 +218,7 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
 
     const wave = this.waves[this.currentWaveIndex];
     this.waveActive = true;
+    this.currentWaveSpeed = wave.birdSpeed; // Store current wave speed
     
     console.log(`[GameplayManager] ========== WAVE ${this.currentWaveIndex + 1} START ==========`);
     console.log(`[GameplayManager] Wave ${this.currentWaveIndex + 1} Config: ${wave.cropCount} crops, ${wave.birdCount} birds, ${wave.birdSpeed} speed`);
@@ -286,13 +289,18 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
    * Resets the game to initial state
    */
   private resetGame(): void {
-    // Clear wave timeout timer
-    if (this.waveTimeoutTimer) {
-      const world = this.getWorld();
-      if (world && world.timerSystem) {
+    const world = this.getWorld();
+    if (world && world.timerSystem) {
+      // Clear wave timeout timer
+      if (this.waveTimeoutTimer) {
         world.timerSystem.clearTimer(this.waveTimeoutTimer);
+        this.waveTimeoutTimer = null;
       }
-      this.waveTimeoutTimer = null;
+      // Clear all crops eaten timer
+      if (this.allCropsEatenTimer) {
+        world.timerSystem.clearTimer(this.allCropsEatenTimer);
+        this.allCropsEatenTimer = null;
+      }
     }
     
     // Clear all crops
@@ -308,6 +316,7 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     this.currentWaveIndex = 0;
     this.gameStarted = false;
     this.waveActive = false;
+    this.currentWaveSpeed = 1.0;
     
     // Reset spawn tracking
     this.totalCrowsToSpawn = 0;
@@ -333,7 +342,11 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
       return;
     }
 
-    const markersToUse = this.cropMarkers.slice(0, Math.min(count, this.cropMarkers.length));
+    // Shuffle the markers array to randomize selection for each wave
+    const shuffledMarkers = [...this.cropMarkers].sort(() => Math.random() - 0.5);
+    const markersToUse = shuffledMarkers.slice(0, Math.min(count, shuffledMarkers.length));
+    
+    console.log(`[GameplayManager] 🎲 Randomly selected ${markersToUse.length} markers from ${this.cropMarkers.length} available`);
     
     console.log(`[GameplayManager] Spawning ${markersToUse.length} crops at markers`);
     
@@ -416,6 +429,10 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     if (!this.cropsWithCrows.has(crop)) {
       this.cropsWithCrows.set(crop, new Set<CrowActor>());
     }
+    
+    // Clear any existing listeners first to prevent duplicates
+    triggerZone.onActorEntered.clear();
+    triggerZone.onActorExited.clear();
 
     // When bird enters trigger zone - turn it red and track it
     triggerZone.onActorEntered.add((actor: ENGINE.Actor) => {
@@ -518,6 +535,12 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     crow.onDeadlineExpired.add((expiredCrow: CrowActor) => {
       this.handleCrowDeadline(expiredCrow);
     });
+    
+    // Start deadline timer with adjusted time (20 seconds / speed multiplier)
+    const baseDeadline = 20.0; // Base deadline in seconds
+    const adjustedDeadline = baseDeadline / this.currentWaveSpeed; // Higher speed = shorter deadline
+    crow.startDeadlineTimer(adjustedDeadline);
+    console.log(`[GameplayManager] ⏰ Crow deadline set to ${adjustedDeadline.toFixed(1)}s (base ${baseDeadline}s / speed ${this.currentWaveSpeed}x)`);
     
     // Assign RANDOM crop to target
     const randomCrop = this.findRandomCrop();
@@ -823,7 +846,7 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
   }
 
   /**
-   * Handles when a crow's 30-second deadline expires
+   * Handles when a crow's deadline expires - crop is eaten
    */
   private handleCrowDeadline(crow: CrowActor): void {
     console.log(`[GameplayManager] ⏰ DEADLINE EXPIRED for "${crow.name}" - crop eaten!`);
@@ -843,6 +866,15 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
         this.spawnedCrops.splice(index, 1);
       }
       this.cropsWithCrows.delete(targetCrop);
+      
+      console.log(`[GameplayManager] 📊 Crops remaining: ${this.spawnedCrops.length}`);
+      
+      // Check if ALL crops are eaten
+      if (this.spawnedCrops.length === 0) {
+        console.log(`[GameplayManager] 🚨 ALL CROPS EATEN! Sending all crows to origin...`);
+        this.handleAllCropsEaten();
+        return; // Don't destroy the crow yet, it will be destroyed in handleAllCropsEaten
+      }
     }
     
     // Destroy the crow
@@ -852,11 +884,115 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     this.checkWaveComplete();
   }
 
+  /**
+   * Handles the scenario when all crops are eaten - sends all crows to origin then ends wave
+   */
+  private handleAllCropsEaten(): void {
+    const world = this.getWorld();
+    if (!world) return;
+    
+    // Clear any existing timer
+    if (this.allCropsEatenTimer) {
+      world.timerSystem.clearTimer(this.allCropsEatenTimer);
+      this.allCropsEatenTimer = null;
+    }
+    
+    console.log(`[GameplayManager] 🚨 ALL CROPS EATEN - Game Over scenario initiated`);
+    console.log(`[GameplayManager] 📊 Active crows: ${this.activeCrows.length}`);
+    console.log(`[GameplayManager] 📊 Paused crows: ${this.pausedCrows.length}`);
+    
+    // Get all crows (active + paused)
+    const allCrows = [...this.activeCrows, ...this.pausedCrows];
+    
+    if (allCrows.length === 0) {
+      console.log(`[GameplayManager] No crows to send to origin, ending immediately`);
+      this.endWaveAfterAllCropsEaten();
+      return;
+    }
+    
+    // Create a dummy target actor at origin for crows to fly to
+    const dummyTarget = new ENGINE.Actor({ position: new THREE.Vector3(0, 0, 0) });
+    world.addActor(dummyTarget);
+    
+    // Send each crow to origin (0,0,0), 1 second apart
+    allCrows.forEach((crow, index) => {
+      const delay = index * 1.0; // 1 second spacing
+      world.timerSystem.setTimeout(() => {
+        console.log(`[GameplayManager] 🎯 Sending crow "${crow.name}" to origin (0,0,0)`);
+        crow.cancelDeadlineTimer(); // Cancel deadline timer
+        crow.setTargetCrop(dummyTarget, 'Origin'); // Set dummy target so crow flies there
+      }, delay);
+    });
+    
+    // Clean up dummy target after crows are sent
+    world.timerSystem.setTimeout(() => {
+      dummyTarget.destroy();
+    }, allCrows.length * 1.0 + 1.0);
+    
+    // After 5 seconds from starting to send crows, end the wave
+    const totalDelay = allCrows.length * 1.0 + 5.0;
+    this.allCropsEatenTimer = world.timerSystem.setTimeout(() => {
+      console.log(`[GameplayManager] ⏱️ ${totalDelay.toFixed(1)}s elapsed since all crops eaten - ending wave`);
+      this.endWaveAfterAllCropsEaten();
+    }, totalDelay);
+  }
+
+  /**
+   * Ends the wave and resets to start screen after all crops are eaten
+   */
+  private endWaveAfterAllCropsEaten(): void {
+    console.log(`[GameplayManager] 🔚 WAVE FAILED - All crops were eaten!`);
+    
+    // Destroy all remaining crows
+    const allCrows = [...this.activeCrows, ...this.pausedCrows];
+    for (const crow of allCrows) {
+      console.log(`[GameplayManager] 💀 Destroying crow "${crow.name}"`);
+      crow.cancelDeadlineTimer();
+      crow.destroy();
+    }
+    
+    this.activeCrows = [];
+    this.pausedCrows = [];
+    this.cropsWithCrows.clear();
+    
+    // Show game over message
+    this.showMessage('💀 ALL CROPS EATEN! GAME OVER 💀', 5000);
+    
+    // Reset to main menu after message
+    const world = this.getWorld();
+    if (world) {
+      world.timerSystem.setTimeout(() => {
+        console.log(`[GameplayManager] 🔄 Returning to main menu...`);
+        this.resetGame();
+      }, 5.5);
+    }
+  }
+
   protected override doEndPlay(): void {
     super.doEndPlay();
     
     if (this.uiContainer && this.uiContainer.parentNode) {
       this.uiContainer.parentNode.removeChild(this.uiContainer);
+    }
+    
+    // Ensure all timers are cleared on end play
+    const world = this.getWorld();
+    if (world && world.timerSystem) {
+      if (this.waveTimeoutTimer) {
+        world.timerSystem.clearTimer(this.waveTimeoutTimer);
+        this.waveTimeoutTimer = null;
+      }
+      if (this.allCropsEatenTimer) {
+        world.timerSystem.clearTimer(this.allCropsEatenTimer);
+        this.allCropsEatenTimer = null;
+      }
+    }
+    
+    for (const crow of this.activeCrows) {
+      crow.cancelDeadlineTimer();
+    }
+    for (const crow of this.pausedCrows) {
+      crow.cancelDeadlineTimer();
     }
   }
 }

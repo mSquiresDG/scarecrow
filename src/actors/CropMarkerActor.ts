@@ -45,6 +45,9 @@ export class CropMarkerActor extends ENGINE.Actor {
    * Spawns the crop prefab at this marker's position
    */
   public async spawnCrop(): Promise<ENGINE.Actor | null> {
+    // Clear any previous event listeners from old crops
+    this.onCropReady.clear();
+    
     if (this.spawnedCrop) {
       console.warn('[CropMarkerActor] Crop already spawned at this marker');
       return this.spawnedCrop;
@@ -78,6 +81,13 @@ export class CropMarkerActor extends ENGINE.Actor {
       if (cropActors.length > 0) {
         this.spawnedCrop = cropActors[0];
         this.spawnedCrop.editorData.displayName = `Crop_${this.uuid.substring(0, 4)}`;
+        
+        // Listen for crop destruction to clear our reference
+        this.spawnedCrop.onEndPlay.add(() => {
+          console.log(`[CropMarkerActor] Crop destroyed, clearing reference`);
+          this.spawnedCrop = null;
+          // DO NOT show marker - it should only be visible in editor, not during gameplay
+        });
         
         console.log(`[CropMarkerActor] Successfully spawned crop: ${this.spawnedCrop.name}`);
         

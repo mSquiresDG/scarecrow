@@ -3,7 +3,7 @@ import * as THREE from 'three';
 
 export interface StaticCameraActorOptions extends ENGINE.ActorOptions {
   /** Field of View in degrees (1-179) */
-  fov?: number;
+  fieldOfView?: number;
   /** Near clipping plane distance */
   near?: number;
   /** Far clipping plane distance */
@@ -22,7 +22,7 @@ export interface StaticCameraActorOptions extends ENGINE.ActorOptions {
 export class StaticCameraActor extends ENGINE.Actor<StaticCameraActorOptions> {
   static override readonly EDITOR_CLASS_META: ENGINE.EditorClassMeta = {
     ...ENGINE.Actor.EDITOR_CLASS_META,
-    fov: { number: { min: 1, max: 179, step: 1, unit: '°' } },
+    fieldOfView: { number: {} },
     near: { number: { min: 0.01, max: 100, step: 0.01 } },
     far: { number: { min: 100, max: 10000, step: 100 } },
     zoom: { number: { min: 0.1, max: 10, step: 0.1 } },
@@ -31,7 +31,7 @@ export class StaticCameraActor extends ENGINE.Actor<StaticCameraActorOptions> {
   static override get DEFAULT_OPTIONS(): StaticCameraActorOptions {
     return {
       ...ENGINE.Actor.DEFAULT_OPTIONS,
-      fov: ENGINE.CAMERA_FOV,
+      fieldOfView: ENGINE.CAMERA_FOV,
       near: ENGINE.CAMERA_NEAR,
       far: ENGINE.CAMERA_FAR,
       zoom: 1,
@@ -49,7 +49,7 @@ export class StaticCameraActor extends ENGINE.Actor<StaticCameraActorOptions> {
 
     // Create the camera before calling super
     const camera = new THREE.PerspectiveCamera(
-      mergedOptions.fov!,
+      mergedOptions.fieldOfView!,
       1,
       mergedOptions.near!,
       mergedOptions.far!
@@ -92,7 +92,7 @@ export class StaticCameraActor extends ENGINE.Actor<StaticCameraActorOptions> {
    * @param newFov - The new FOV value in degrees
    */
   public setFOV(newFov: number): void {
-    this.options.fov = newFov;
+    this.options.fieldOfView = newFov;
     this.camera.fov = newFov;
     this.camera.updateProjectionMatrix();
     console.log(`[Camera] FOV updated to ${newFov}°`);
@@ -137,7 +137,7 @@ export class StaticCameraActor extends ENGINE.Actor<StaticCameraActorOptions> {
   public override onEditorPropertyChanged(path: string, value: any, result: ENGINE.EditorPropertyChangedResult): void {
     super.onEditorPropertyChanged(path, value, result);
     
-    if (path === 'fov') {
+    if (path === 'fieldOfView') {
       this.setFOV(value);
     } else if (path === 'near') {
       this.setNear(value);
@@ -154,8 +154,8 @@ export class StaticCameraActor extends ENGINE.Actor<StaticCameraActorOptions> {
     // Sync camera properties if they changed
     let needsUpdate = false;
     
-    if (this.camera.fov !== this.options.fov) {
-      this.camera.fov = this.options.fov!;
+    if (this.camera.fov !== this.options.fieldOfView) {
+      this.camera.fov = this.options.fieldOfView!;
       needsUpdate = true;
     }
     if (this.camera.near !== this.options.near) {
@@ -186,7 +186,7 @@ export class StaticCameraActor extends ENGINE.Actor<StaticCameraActorOptions> {
     }
     
     // Apply initial camera properties from options
-    this.setFOV(this.options.fov!);
+    this.setFOV(this.options.fieldOfView!);
     this.setNear(this.options.near!);
     this.setFar(this.options.far!);
     this.setZoom(this.options.zoom!);

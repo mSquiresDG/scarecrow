@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { CropMarkerActor } from '../actors/CropMarkerActor.js';
 import { CrowActor } from '../actors/CrowActor.js';
 import { CrowSpawnerActor } from '../actors/CrowSpawnerActor.js';
+import { ScarecrowWatcherActor } from '../actors/ScarecrowWatcherActor.js';
 
 /**
  * Wave configuration for the gameplay
@@ -52,6 +53,7 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
   private spawnedCrops: ENGINE.Actor[] = [];
   private activeCrows: CrowActor[] = [];
   private crowSpawners: CrowSpawnerActor[] = [];
+  private scarecrowWatcher: ScarecrowWatcherActor | null = null; // Reference to scarecrow for rotation
   private cropsWithCrows: Map<ENGINE.Actor, Set<CrowActor>> = new Map(); // Track which crops have crows
   private pausedCrows: CrowActor[] = []; // Crows waiting for crops to become available
   private waveStartTime: number = 0; // When current wave started
@@ -693,6 +695,66 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     super.doBeginPlay();
     this.createUI();
     this.setupInputHandling();
+    this.findScarecrow();
+  }
+
+  /**
+   * Finds or creates the ScarecrowWatcherActor in the scene
+   */
+  private findScarecrow(): void {
+    const world = this.getWorld();
+    if (!world) return;
+
+    // First try to find existing scarecrow
+    this.scarecrowWatcher = world.getFirstActor(ScarecrowWatcherActor);
+    
+    if (this.scarecrowWatcher) {
+      const scarecrowPos = this.scarecrowWatcher.getWorldPosition();
+      console.log(`[GameplayManager] 🌾 Found existing ScarecrowWatcher at position: (${scarecrowPos.x.toFixed(2)}, ${scarecrowPos.y.toFixed(2)}, ${scarecrowPos.z.toFixed(2)})`);
+      return;
+    }
+    
+    // If not found, check if there's a regular scarecrow prefab and replace it
+    const existingScarecrows = world.getActorsByPredicate(
+      (actor) => actor.editorData?.displayName === 'P_scareCrow' || actor.editorData?.displayName === 'Scarecrow'
+    );
+    
+    if (existingScarecrows.length > 0) {
+      const oldScarecrow = existingScarecrows[0];
+      const position = oldScarecrow.getWorldPosition();
+      const rotation = oldScarecrow.getRootComponent()?.rotation.clone() || new THREE.Euler(0, 0, 0);
+      
+      console.log(`[GameplayManager] 🔄 Replacing old scarecrow prefab with ScarecrowWatcher at position: (${position.x.toFixed(2)}, ${position.y.toFixed(2)}, ${position.z.toFixed(2)})`);
+      
+      // Destroy old scarecrow
+      oldScarecrow.destroy();
+      
+      // Create new ScarecrowWatcher at the same position
+      this.scarecrowWatcher = new ScarecrowWatcherActor({
+        position: position
+      });
+      
+      // Apply the same rotation
+      const rootComp = this.scarecrowWatcher.getRootComponent();
+      if (rootComp) {
+        rootComp.rotation.copy(rotation);
+      }
+      
+      world.addActor(this.scarecrowWatcher);
+      
+      console.log(`[GameplayManager] ✅ Created new ScarecrowWatcher actor`);
+    } else {
+      // No scarecrow found at all - create one at origin
+      console.log(`[GameplayManager] 🆕 No scarecrow found - creating new ScarecrowWatcher at origin`);
+      
+      this.scarecrowWatcher = new ScarecrowWatcherActor({
+        position: new THREE.Vector3(0, 0, 0)
+      });
+      
+      world.addActor(this.scarecrowWatcher);
+      
+      console.log(`[GameplayManager] ✅ Created new ScarecrowWatcher at origin (0, 0, 0)`);
+    }
   }
 
   private setupInputHandling(): void {
@@ -780,6 +842,15 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
 
     if (crowsOnThisCrop && crowsOnThisCrop.size > 0) {
       console.log(`[GameplayManager] ✅ VALID CLICK - destroying ${crowsOnThisCrop.size} crow(s) on this crop`);
+      
+      // Make scarecrow look at the crop
+      if (this.scarecrowWatcher) {
+        const cropPos = crop.getWorldPosition();
+        console.log(`[GameplayManager] 🌾 Telling scarecrow to look at crop "${cropDisplayName}" at position: (${cropPos.x.toFixed(2)}, ${cropPos.y.toFixed(2)}, ${cropPos.z.toFixed(2)})`);
+        this.scarecrowWatcher.lookAtCrop(cropPos);
+      } else {
+        console.warn(`[GameplayManager] ⚠️ Cannot rotate scarecrow - no ScarecrowWatcher reference!`);
+      }
       
       // Destroy only the crows on THIS crop (make a copy of the set to avoid modification during iteration)
       const crowsToDestroy = Array.from(crowsOnThisCrop);

@@ -218,37 +218,6 @@
       }
     },
     {
-      "uuid": "a07416cb3352d43d",
-      "properties": {
-        "editorData": {
-          "hidden": false
-        }
-      },
-      "ctor": {
-        "rootComponent": {
-          "uuid": "7bce6f1d96713de5",
-          "ctor": {
-            "physicsOptions": {
-              "enabled": false,
-              "generateCollisionEvents": false
-            }
-          },
-          "children": [
-            {
-              "uuid": "8b92eceaf408a682"
-            },
-            {
-              "uuid": "e51c152e120a9a03"
-            },
-            {
-              "uuid": "10e33c6d6c427f82"
-            }
-          ]
-        }
-      },
-      "prefabName": "@project/assets/prefab/P_scareCrow.prefab.json"
-    },
-    {
       "uuid": "64f26368ce5175bb",
       "class": "ENGINE.GLTFMeshActor",
       "ctor": {
@@ -1372,6 +1341,78 @@
           }
         }
       }
+    },
+    {
+      "uuid": "a0fe1f84f82c8bca",
+      "class": "GAME.ScarecrowWatcherActor",
+      "properties": {
+        "editorData": {
+          "displayName": "ScarecrowWatcher"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "ec170349-a9ab-483b-a889-61861cfdf833",
+          "ctor": {
+            "modelUrl": "@project/assets/models/scareCrow/SM_ScareCrow_Stick.glb"
+          },
+          "properties": {
+            "name": "GLTFMeshComponent"
+          },
+          "children": [
+            {
+              "class": "ENGINE.GLTFMeshComponent",
+              "uuid": "9df19d7a-b943-4495-961a-c0c42699f9c2",
+              "ctor": {
+                "modelUrl": "@project/assets/models/scareCrow/SM_ScareCrow_Tshirt.glb"
+              },
+              "properties": {
+                "position": [
+                  0,
+                  0.6,
+                  0,
+                  "v"
+                ],
+                "name": "GLTFMeshComponent_2"
+              }
+            },
+            {
+              "class": "ENGINE.GLTFMeshComponent",
+              "uuid": "d5532ded-9704-4564-bf4c-51a91f124fdd",
+              "ctor": {
+                "modelUrl": "@project/assets/models/scareCrow/SM_Scarecrow_Head.glb"
+              },
+              "properties": {
+                "position": [
+                  0,
+                  1.1,
+                  0,
+                  "v"
+                ],
+                "name": "GLTFMeshComponent_3"
+              }
+            },
+            {
+              "class": "ENGINE.GLTFMeshComponent",
+              "uuid": "ce737093-2896-425a-be44-dc96329c7ed5",
+              "ctor": {
+                "modelUrl": "@project/assets/models/scareCrow/SM_ScareCrow_Hat.glb"
+              },
+              "properties": {
+                "position": [
+                  0,
+                  1.1,
+                  0,
+                  "v"
+                ],
+                "name": "GLTFMeshComponent_4"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "properties": {
@@ -1406,10 +1447,6 @@
           },
           {
             "id": "0080af01ca01d78c",
-            "nodeType": "actor"
-          },
-          {
-            "id": "a07416cb3352d43d",
             "nodeType": "actor"
           },
           {
@@ -1574,6 +1611,10 @@
           },
           {
             "id": "33423b3a2421a6a7",
+            "nodeType": "actor"
+          },
+          {
+            "id": "a0fe1f84f82c8bca",
             "nodeType": "actor"
           }
         ]

@@ -1,1 +1,1 @@
-import './player.ts';
+import './camera.ts';

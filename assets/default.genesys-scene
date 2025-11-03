@@ -212,34 +212,6 @@
       }
     },
     {
-      "uuid": "3183cf78663b9b21",
-      "class": "ENGINE.GLTFMeshActor",
-      "properties": {
-        "editorData": {
-          "displayName": "camera_placeholder"
-        }
-      },
-      "ctor": {
-        "modelUrl": "@project/assets/models/camera.glb",
-        "rootComponent": {
-          "class": "ENGINE.GLTFMeshComponent",
-          "uuid": "72af8d0c-bdc8-4865-bfd4-6f76563719b8",
-          "ctor": {
-            "modelUrl": "@project/assets/models/camera.glb"
-          },
-          "properties": {
-            "position": [
-              8,
-              6.3,
-              8.6,
-              "v"
-            ],
-            "name": "GLTFMeshComponent"
-          }
-        }
-      }
-    },
-    {
       "uuid": "a07416cb3352d43d",
       "properties": {
         "editorData": {
@@ -665,6 +637,37 @@
           }
         }
       }
+    },
+    {
+      "uuid": "51f7bbe5e4d53cc6",
+      "class": "ENGINE.Actor",
+      "properties": {
+        "editorData": {
+          "displayName": "camera_placeholder"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "d6ac2412-d5f6-4643-b34a-a868acdd0afd",
+          "properties": {
+            "position": [
+              8,
+              6.3,
+              8.6,
+              "v"
+            ],
+            "rotation": [
+              -0.668261,
+              0.631837,
+              0.436291,
+              "e"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
     }
   ],
   "properties": {
@@ -702,7 +705,7 @@
             "nodeType": "actor"
           },
           {
-            "id": "3183cf78663b9b21",
+            "id": "51f7bbe5e4d53cc6",
             "nodeType": "actor"
           },
           {

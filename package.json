@@ -1,0 +1,38 @@
+{
+  "name": "ScareCrow",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "tsc",
+    "build-project": "npx tsx ./scripts/genesys/build-project.ts",
+    "postinstall": "npx tsx ./scripts/genesys/post-install.ts",
+    "lint": "eslint . --fix --ext .ts,.tsx",
+    "remove-engine-comments": "npx tsx ./scripts/genesys/remove-engine-comments.ts",
+    "dev": "npx tsx ./scripts/genesys/dev/generate-manifest.ts && vite"
+  },
+  "keywords": [],
+  "type": "module",
+  "dependencies": {
+    "genesys.js": "^0.22.39"
+  },
+  "devDependencies": {
+    "canvas": "^3.1.0",
+    "get-port": "^7.1.0",
+    "zod-to-json-schema": "^3.24.5",
+    "ws": "^8.18.2",
+    "@types/node": "^22.15.21",
+    "@types/jsdom": "^21.1.7",
+    "@modelcontextprotocol/sdk": "^1.11.2",
+    "tsx": "4.20.3",
+    "zod": "^3.24.4",
+    "jsdom": "^26.1.0",
+    "path-browserify": "^1.0.1",
+    "typescript": "^5.8.3",
+    "vite": "^7.1.7",
+    "vite-plugin-mkcert": "^1.17.8",
+    "@typescript-eslint/parser": "^8.29.1",
+    "@typescript-eslint/utils": "^8.38.0",
+    "eslint": "^9.24.0",
+    "@types/ws": "^8.18.1",
+    "ts-morph": "^26.0.0"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "$version": 0,
+  "class": "ENGINE.GLTFMeshActor",
+  "properties": {
+    "editorData": {
+      "displayName": "P_PropCrop_01"
+    }
+  },
+  "ctor": {
+    "modelUrl": "@project/assets/models/crops/SM_Crop_01.glb",
+    "rootComponent": {
+      "class": "ENGINE.GLTFMeshComponent",
+      "ctor": {
+        "modelUrl": "@project/assets/models/crops/SM_Crop_01.glb"
+      },
+      "properties": {
+        "position": [
+          2.02,
+          0.02,
+          0.1,
+          "v"
+        ],
+        "name": "GLTFMeshComponent"
+      }
+    }
+  }
+}

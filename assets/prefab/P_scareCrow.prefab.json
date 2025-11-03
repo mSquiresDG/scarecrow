@@ -1,0 +1,76 @@
+{
+  "$version": 0,
+  "class": "ENGINE.Actor",
+  "properties": {
+    "editorData": {
+      "displayName": "P_scareCrow"
+    }
+  },
+  "ctor": {
+    "actorTags": [],
+    "rootComponent": {
+      "class": "ENGINE.GLTFMeshComponent",
+      "ctor": {
+        "modelUrl": "@project/assets/models/scareCrow/SM_ScareCrow_Stick.glb",
+        "excludeFromNavigation": false,
+        "useDynamicMaterials": false
+      },
+      "properties": {
+        "name": "GLTF_stick"
+      },
+      "children": [
+        {
+          "class": "ENGINE.GLTFMeshComponent",
+          "ctor": {
+            "modelUrl": "@project/assets/models/scareCrow/SM_ScareCrow_Tshirt.glb",
+            "excludeFromNavigation": false,
+            "useDynamicMaterials": false
+          },
+          "properties": {
+            "position": [
+              0,
+              0.6,
+              0,
+              "v"
+            ],
+            "name": "GLTF_shirt"
+          }
+        },
+        {
+          "class": "ENGINE.GLTFMeshComponent",
+          "ctor": {
+            "modelUrl": "@project/assets/models/scareCrow/SM_Scarecrow_Head.glb",
+            "excludeFromNavigation": false,
+            "useDynamicMaterials": false
+          },
+          "properties": {
+            "position": [
+              0,
+              1.1,
+              0,
+              "v"
+            ],
+            "name": "GLTF_Head"
+          }
+        },
+        {
+          "class": "ENGINE.GLTFMeshComponent",
+          "ctor": {
+            "modelUrl": "@project/assets/models/scareCrow/SM_ScareCrow_Hat.glb",
+            "excludeFromNavigation": false,
+            "useDynamicMaterials": false
+          },
+          "properties": {
+            "position": [
+              0,
+              1.1,
+              0,
+              "v"
+            ],
+            "name": "GLTF_Hat"
+          }
+        }
+      ]
+    }
+  }
+}

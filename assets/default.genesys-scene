@@ -1,0 +1,777 @@
+{
+  "$version": 0,
+  "class": "ENGINE.World",
+  "uuid": "c0ae85792bc3b946",
+  "ctor": {
+    "backgroundColor": "#2E2E2E",
+    "navigationOptions": {
+      "engine": "recast-navigation",
+      "debug": false,
+      "generateOnStartUp": false
+    },
+    "physicsOptions": {
+      "gravity": [
+        0,
+        -9.81,
+        0,
+        "v"
+      ],
+      "engine": "rapier"
+    },
+    "useManifold": true
+  },
+  "actors": [
+    {
+      "uuid": "9a86d389088b361c",
+      "class": "ENGINE.Actor",
+      "properties": {
+        "editorData": {
+          "displayName": "Directional Light",
+          "hidden": false
+        }
+      },
+      "ctor": {
+        "rootComponent": {
+          "class": "ENGINE.DirectionalLightComponent",
+          "uuid": "cfe05433-9edc-4dfe-a535-c71f33e92d78",
+          "ctor": {
+            "color": 16777215,
+            "intensity": 1,
+            "castShadow": true,
+            "shadowMapSize": 2048,
+            "shadowBias": 0,
+            "shadowNormalBias": 0,
+            "shadowNear": 0.1,
+            "shadowFar": 100
+          },
+          "properties": {
+            "position": [
+              10,
+              50,
+              -10,
+              "v"
+            ],
+            "castShadow": true
+          }
+        }
+      }
+    },
+    {
+      "uuid": "9d428f2a16e5374a",
+      "class": "ENGINE.Actor",
+      "properties": {
+        "editorData": {
+          "displayName": "Ground",
+          "hidden": false
+        }
+      },
+      "ctor": {
+        "rootComponent": {
+          "class": "ENGINE.MeshComponent",
+          "uuid": "71caea24-62d7-4e45-a76e-4c7519de2c3c",
+          "ctor": {
+            "geometry": {
+              "class": "THREE.BoxGeometry",
+              "ctor": [
+                500,
+                0.1,
+                500
+              ]
+            },
+            "material": {
+              "@external": "DefaultMaterial"
+            },
+            "uvScaleTilesPerUnit": 0.2
+          },
+          "properties": {
+            "position": [
+              0,
+              -0.9,
+              0,
+              "v"
+            ],
+            "receiveShadow": true,
+            "name": "MeshComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "b87cbc5e60a2e54c",
+      "class": "ENGINE.PlayerStart",
+      "properties": {
+        "editorData": {
+          "displayName": "Player Start",
+          "hidden": false
+        }
+      },
+      "ctor": {
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "b4d5f8f7-2512-45e1-9157-c7ff6772402d",
+          "properties": {
+            "position": [
+              0,
+              0.9,
+              0,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "0ba1f4677e8370d1",
+      "class": "ENGINE.Actor",
+      "properties": {
+        "editorData": {
+          "displayName": "Skybox",
+          "hidden": false
+        }
+      },
+      "ctor": {
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "195e88df-73ff-4f4b-82ae-7fb58671463d",
+          "children": [
+            {
+              "class": "ENGINE.SkyboxComponent",
+              "uuid": "a6cea5af-a972-4031-97b4-cd9218198a2f",
+              "ctor": {
+                "textureUrl": "@engine/assets/textures/skybox/citrus_orchard_road_puresky_2k.hdr",
+                "width": 2048,
+                "height": 1024,
+                "bottomColor": "#E6F3FF",
+                "middleColor": "#4A90E2",
+                "topColor": "#0F1B3C",
+                "envMapIntensity": 1,
+                "backgroundIntensity": 1,
+                "backgroundBlurriness": 0,
+                "envMapRotation": [
+                  0,
+                  0,
+                  0,
+                  "e"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "uuid": "2c5c9e989ec0cd4b",
+      "class": "ENGINE.GLTFMeshActor",
+      "ctor": {
+        "modelUrl": "@project/assets/models/SM_FloorBorderBase_01.glb",
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "7b05e19c-1f8e-4ecb-aa6d-5da2df977399",
+          "ctor": {
+            "modelUrl": "@project/assets/models/SM_FloorBorderBase_01.glb"
+          },
+          "properties": {
+            "name": "GLTFMeshComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "3b91320fa4fe0fe3",
+      "class": "ENGINE.GLTFMeshActor",
+      "ctor": {
+        "modelUrl": "@project/assets/models/SM_MainFloor_01.glb",
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "4a68ebc8-2096-4efa-b483-6ca80913f9d7",
+          "ctor": {
+            "modelUrl": "@project/assets/models/SM_MainFloor_01.glb"
+          },
+          "properties": {
+            "name": "GLTFMeshComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "0080af01ca01d78c",
+      "class": "ENGINE.GLTFMeshActor",
+      "ctor": {
+        "modelUrl": "@project/assets/models/SM_ScarecrowZone01.glb",
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "eb1664c0-43d9-4dd1-a4db-b28375b5c0e8",
+          "ctor": {
+            "modelUrl": "@project/assets/models/SM_ScarecrowZone01.glb"
+          },
+          "properties": {
+            "name": "GLTFMeshComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "3183cf78663b9b21",
+      "class": "ENGINE.GLTFMeshActor",
+      "properties": {
+        "editorData": {
+          "displayName": "camera_placeholder"
+        }
+      },
+      "ctor": {
+        "modelUrl": "@project/assets/models/camera.glb",
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "72af8d0c-bdc8-4865-bfd4-6f76563719b8",
+          "ctor": {
+            "modelUrl": "@project/assets/models/camera.glb"
+          },
+          "properties": {
+            "position": [
+              8,
+              6.3,
+              8.6,
+              "v"
+            ],
+            "name": "GLTFMeshComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "a07416cb3352d43d",
+      "properties": {
+        "editorData": {
+          "hidden": true
+        }
+      },
+      "ctor": {
+        "rootComponent": {
+          "uuid": "7bce6f1d96713de5",
+          "children": [
+            {
+              "uuid": "8b92eceaf408a682"
+            },
+            {
+              "uuid": "e51c152e120a9a03"
+            },
+            {
+              "uuid": "10e33c6d6c427f82"
+            }
+          ]
+        }
+      },
+      "prefabName": "@project/assets/prefab/P_scareCrow.prefab.json"
+    },
+    {
+      "uuid": "64f26368ce5175bb",
+      "class": "ENGINE.GLTFMeshActor",
+      "ctor": {
+        "modelUrl": "@project/assets/models/env/SM_Ploughed_X01.glb",
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "ebae3410-8a70-4bbb-b136-dbb30d9fd98f",
+          "ctor": {
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_X01.glb"
+          },
+          "properties": {
+            "position": [
+              -0.09,
+              0.02,
+              1.23,
+              "v"
+            ],
+            "scale": [
+              1,
+              1,
+              0.8,
+              "v"
+            ],
+            "name": "GLTFMeshComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "b7ef247b91c0b1d2",
+      "class": "ENGINE.GLTFMeshActor",
+      "ctor": {
+        "modelUrl": "@project/assets/models/env/SM_Ploughed_X02.glb",
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "2cb41249-7f39-4f2d-894d-69e1be28a593",
+          "ctor": {
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_X02.glb"
+          },
+          "properties": {
+            "position": [
+              -0.07,
+              0.02,
+              1.66,
+              "v"
+            ],
+            "name": "GLTFMeshComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "aab5031c50669fd2",
+      "class": "ENGINE.GLTFMeshActor",
+      "ctor": {
+        "modelUrl": "@project/assets/models/env/SM_Ploughed_Y01.glb",
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "23e5d731-b691-4c91-920c-e1e9e710ae0b",
+          "ctor": {
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_Y01.glb"
+          },
+          "properties": {
+            "position": [
+              1.49,
+              0.02,
+              0.86,
+              "v"
+            ],
+            "name": "GLTFMeshComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "1efc86f4c59b48c8",
+      "class": "ENGINE.GLTFMeshActor",
+      "ctor": {
+        "modelUrl": "@project/assets/models/env/SM_Ploughed_Y02.glb",
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "e2b79711-dc72-4573-af96-503ad6e339a2",
+          "ctor": {
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_Y02.glb"
+          },
+          "properties": {
+            "position": [
+              -1.31,
+              0.02,
+              -0.41,
+              "v"
+            ],
+            "scale": [
+              0.69,
+              1,
+              1,
+              "v"
+            ],
+            "name": "GLTFMeshComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "6c200d5cf58186ed",
+      "class": "ENGINE.GLTFMeshActor",
+      "ctor": {
+        "modelUrl": "@project/assets/models/env/SM_Ploughed_X03.glb",
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "9626e4e4-f18a-4409-804f-bb0d20265914",
+          "ctor": {
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_X03.glb"
+          },
+          "properties": {
+            "position": [
+              0.68,
+              0.02,
+              -1.31,
+              "v"
+            ],
+            "name": "GLTFMeshComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "b64cbc29a3ff70c6",
+      "class": "ENGINE.GLTFMeshActor",
+      "properties": {
+        "editorData": {
+          "displayName": "SM_Ploughed_X03_1"
+        }
+      },
+      "ctor": {
+        "modelUrl": "@project/assets/models/env/SM_Ploughed_X03.glb",
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "a5c8a31453594452",
+          "ctor": {
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_X03.glb"
+          },
+          "properties": {
+            "position": [
+              0.06,
+              0.02,
+              -1.31,
+              "v"
+            ],
+            "name": "GLTFMeshComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "4ac91c0b6e7b44f6",
+      "class": "ENGINE.GLTFMeshActor",
+      "properties": {
+        "editorData": {
+          "displayName": "SM_Ploughed_X03_2"
+        }
+      },
+      "ctor": {
+        "modelUrl": "@project/assets/models/env/SM_Ploughed_X03.glb",
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "828a94a47c5b4b78",
+          "ctor": {
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_X03.glb"
+          },
+          "properties": {
+            "position": [
+              -0.59,
+              0.02,
+              -1.31,
+              "v"
+            ],
+            "name": "GLTFMeshComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "59be92132c064e22",
+      "class": "ENGINE.GLTFMeshActor",
+      "properties": {
+        "editorData": {
+          "displayName": "SM_Ploughed_X03_3"
+        }
+      },
+      "ctor": {
+        "modelUrl": "@project/assets/models/env/SM_Ploughed_X03.glb",
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "62c7bbaccc15e35b",
+          "ctor": {
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_X03.glb"
+          },
+          "properties": {
+            "position": [
+              -1.24,
+              0.02,
+              -1.26,
+              "v"
+            ],
+            "name": "GLTFMeshComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "b782294dc54fb003",
+      "class": "ENGINE.GLTFMeshActor",
+      "properties": {
+        "editorData": {
+          "displayName": "SM_Ploughed_Y02_1"
+        }
+      },
+      "ctor": {
+        "modelUrl": "@project/assets/models/env/SM_Ploughed_Y02.glb",
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "f675eb97e33d3c02",
+          "ctor": {
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_Y02.glb"
+          },
+          "properties": {
+            "position": [
+              -1.3,
+              0.02,
+              0.63,
+              "v"
+            ],
+            "scale": [
+              0.69,
+              1,
+              0.61,
+              "v"
+            ],
+            "name": "GLTFMeshComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "7c2631fc8ea68840",
+      "class": "ENGINE.GLTFMeshActor",
+      "properties": {
+        "editorData": {
+          "displayName": "SM_Ploughed_Y01_1"
+        }
+      },
+      "ctor": {
+        "modelUrl": "@project/assets/models/env/SM_Ploughed_Y01.glb",
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "4c19fc6bfa19d245",
+          "ctor": {
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_Y01.glb"
+          },
+          "properties": {
+            "position": [
+              1.96,
+              0.02,
+              0.86,
+              "v"
+            ],
+            "name": "GLTFMeshComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "0442573b1d0028bb",
+      "class": "ENGINE.GLTFMeshActor",
+      "properties": {
+        "editorData": {
+          "displayName": "SM_Ploughed_Y01_2"
+        }
+      },
+      "ctor": {
+        "modelUrl": "@project/assets/models/env/SM_Ploughed_Y01.glb",
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "3db43c1dc9be3620",
+          "ctor": {
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_Y01.glb"
+          },
+          "properties": {
+            "position": [
+              2.44,
+              0.02,
+              0.86,
+              "v"
+            ],
+            "name": "GLTFMeshComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "7d45c7b0d1f17d55",
+      "ctor": {
+        "rootComponent": {
+          "uuid": "c77bb81c-640b-4fb4-b5fd-0d325abe1eab",
+          "properties": {
+            "position": [
+              1.46,
+              "_udf_",
+              -1.13,
+              "_udf_"
+            ]
+          }
+        }
+      },
+      "prefabName": "@project/assets/prefab/props/P_PropCrop_01.prefab.json"
+    },
+    {
+      "uuid": "7e535e9bcb484a00",
+      "class": "ENGINE.GLTFMeshActor",
+      "properties": {
+        "editorData": {
+          "displayName": "P_PropCrop_02"
+        }
+      },
+      "ctor": {
+        "modelUrl": "@project/assets/models/crops/SM_Crop_02.glb",
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "e54e240d-4bce-4d9e-99f0-ebbf22d49030",
+          "ctor": {
+            "modelUrl": "@project/assets/models/crops/SM_Crop_02.glb"
+          },
+          "properties": {
+            "position": [
+              4.576667,
+              0.02,
+              -1.55,
+              "v"
+            ],
+            "name": "GLTFMeshComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "e20512d23998fb07",
+      "class": "ENGINE.GLTFMeshActor",
+      "properties": {
+        "editorData": {
+          "displayName": "P_PropCrop_03"
+        }
+      },
+      "ctor": {
+        "modelUrl": "@project/assets/models/crops/SM_Crop_03.glb",
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "1f15cd55-96c7-4812-9a4e-a36afd896787",
+          "ctor": {
+            "modelUrl": "@project/assets/models/crops/SM_Crop_03.glb"
+          },
+          "properties": {
+            "position": [
+              5.176667,
+              0.02,
+              -2.1,
+              "v"
+            ],
+            "name": "GLTFMeshComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "0d2e4f94b72d962c",
+      "class": "ENGINE.GLTFMeshActor",
+      "properties": {
+        "editorData": {
+          "displayName": "P_PropCrop_04"
+        }
+      },
+      "ctor": {
+        "modelUrl": "@project/assets/models/crops/SM_Crop_04.glb",
+        "rootComponent": {
+          "class": "ENGINE.GLTFMeshComponent",
+          "uuid": "db42ab5a-fd0b-401e-842e-7f06df0c4c77",
+          "ctor": {
+            "modelUrl": "@project/assets/models/crops/SM_Crop_04.glb"
+          },
+          "properties": {
+            "position": [
+              5.816667,
+              0.02,
+              -2.08,
+              "v"
+            ],
+            "name": "GLTFMeshComponent"
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "editorData": {
+      "sceneTree": {
+        "id": "c0ae85792bc3b946",
+        "nodeType": "scene",
+        "children": [
+          {
+            "id": "9a86d389088b361c",
+            "nodeType": "actor"
+          },
+          {
+            "id": "9d428f2a16e5374a",
+            "nodeType": "actor"
+          },
+          {
+            "id": "b87cbc5e60a2e54c",
+            "nodeType": "actor"
+          },
+          {
+            "id": "0ba1f4677e8370d1",
+            "nodeType": "actor"
+          },
+          {
+            "id": "2c5c9e989ec0cd4b",
+            "nodeType": "actor"
+          },
+          {
+            "id": "3b91320fa4fe0fe3",
+            "nodeType": "actor"
+          },
+          {
+            "id": "0080af01ca01d78c",
+            "nodeType": "actor"
+          },
+          {
+            "id": "3183cf78663b9b21",
+            "nodeType": "actor"
+          },
+          {
+            "id": "a07416cb3352d43d",
+            "nodeType": "actor"
+          },
+          {
+            "id": "64f26368ce5175bb",
+            "nodeType": "actor"
+          },
+          {
+            "id": "b7ef247b91c0b1d2",
+            "nodeType": "actor"
+          },
+          {
+            "id": "aab5031c50669fd2",
+            "nodeType": "actor"
+          },
+          {
+            "id": "7c2631fc8ea68840",
+            "nodeType": "actor"
+          },
+          {
+            "id": "0442573b1d0028bb",
+            "nodeType": "actor"
+          },
+          {
+            "id": "1efc86f4c59b48c8",
+            "nodeType": "actor"
+          },
+          {
+            "id": "b782294dc54fb003",
+            "nodeType": "actor"
+          },
+          {
+            "id": "6c200d5cf58186ed",
+            "nodeType": "actor"
+          },
+          {
+            "id": "b64cbc29a3ff70c6",
+            "nodeType": "actor"
+          },
+          {
+            "id": "4ac91c0b6e7b44f6",
+            "nodeType": "actor"
+          },
+          {
+            "id": "59be92132c064e22",
+            "nodeType": "actor"
+          },
+          {
+            "id": "7d45c7b0d1f17d55",
+            "nodeType": "actor"
+          },
+          {
+            "id": "7e535e9bcb484a00",
+            "nodeType": "actor"
+          },
+          {
+            "id": "e20512d23998fb07",
+            "nodeType": "actor"
+          },
+          {
+            "id": "0d2e4f94b72d962c",
+            "nodeType": "actor"
+          }
+        ]
+      }
+    },
+    "postProcessConfiguration": null
+  }
+}

@@ -22,6 +22,7 @@ export class CrowActor extends ENGINE.Actor {
   private redMaterial: THREE.MeshStandardMaterial;
   private gltfComponent: ENGINE.GLTFMeshComponent | null = null;
   private animComponent: ENGINE.AnimationComponent | null = null;
+  private meshParent: ENGINE.SceneComponent | null = null; // Parent to rotate the mesh towards target
   private spawnTime: number = 0; // Track when bird spawned
   private deadlineTimer: any = null; // Timer handle for 30-second deadline
   private deadlineTimerPaused: boolean = false; // Whether the deadline timer is paused
@@ -38,6 +39,11 @@ export class CrowActor extends ENGINE.Actor {
       emissiveIntensity: 0.3
     });
     
+    // Create a parent component to hold the mesh (so we can rotate it independently)
+    const meshParent = new ENGINE.SceneComponent();
+    this.setRootComponent(meshParent, true);
+    this.meshParent = meshParent;
+    
     // Load the crow model with physics enabled for trigger detection
     const gltfMesh = new ENGINE.GLTFMeshComponent({
       modelUrl: '@project/assets/models/SM_Crow_01.glb',
@@ -49,7 +55,7 @@ export class CrowActor extends ENGINE.Actor {
         generateCollisionEvents: true // Enable collision events for trigger detection
       }
     });
-    this.setRootComponent(gltfMesh, true);
+    meshParent.add(gltfMesh);
     this.gltfComponent = gltfMesh;
     
     // Add animation component as child of GLTF mesh (same as prefab structure)
@@ -172,6 +178,15 @@ export class CrowActor extends ENGINE.Actor {
     // Calculate direct 3D direction from current position to target
     const direction = new THREE.Vector3().subVectors(targetPos, currentPos);
     const distance = direction.length();
+    
+    // Rotate the mesh parent to face the target (crow model faces +Z by default)
+    // Only rotate on Y-axis (yaw) - keep pitch level so crow doesn't nose-dive
+    if (this.meshParent && distance > 0.001) {
+      // Create a flattened target position (same Y as current position)
+      const flatTargetPos = new THREE.Vector3(targetPos.x, currentPos.y, targetPos.z);
+      // lookAt the flat target - this only rotates on the Y-axis
+      this.meshParent.lookAt(flatTargetPos);
+    }
     
     // Threshold for arrival - very small for precision
     const arrivalThreshold = 0.05; // 5cm precision

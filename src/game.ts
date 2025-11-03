@@ -13,28 +13,62 @@ class ScareCrowGame extends ENGINE.BaseGameLoop {
 
   protected override async preStart(): Promise<void> {
     // Check if a StaticCameraActor already exists in the scene
-    const existingCamera = this.world.getFirstActor(StaticCameraActor);
+    let cameraActor = this.world.getFirstActor(StaticCameraActor);
     
-    if (!existingCamera) {
-      // If no camera actor exists, create one with a nice isometric view
-      // Position it at an angle to see the center (0, 0, 0)
-      const cameraActor = new StaticCameraActor({
-        position: new THREE.Vector3(10, 8, 10)
-      });
+    if (!cameraActor) {
+      // Find the camera_placeholder actor in the scene
+      const placeholderActors = this.world.getActorsByPredicate(
+        (actor) => actor.editorData?.displayName === 'camera_placeholder'
+      );
       
-      this.world.addActor(cameraActor);
+      const placeholderActor = placeholderActors[0];
       
-      // After adding to world, get the camera and make it look at center
-      const camera = cameraActor.getCamera();
-      if (camera) {
-        console.log('[Game] Setting camera to look at (0, 1, 0)');
-        console.log('[Game] Camera position before lookAt:', camera.position);
-        camera.lookAt(0, 1, 0); // Look at slightly above ground level
-        console.log('[Game] Camera rotation after lookAt:', camera.rotation);
+      if (placeholderActor) {
+        console.log('[Game] Found camera_placeholder actor, replacing with StaticCameraActor');
+        const placeholderRoot = placeholderActor.getRootComponent();
+        
+        // Get the placeholder's transform
+        const position = placeholderRoot.position.clone();
+        const rotation = placeholderRoot.rotation.clone();
+        
+        console.log('[Game] Placeholder position:', position);
+        console.log('[Game] Placeholder rotation:', rotation);
+        
+        // Create camera actor at the same position/rotation as placeholder
+        cameraActor = new StaticCameraActor({
+          position: position,
+          rotation: rotation
+        });
+        
+        // Copy display name for editor
+        cameraActor.editorData.displayName = 'Camera';
+        
+        this.world.addActor(cameraActor);
+        
+        // Remove the old placeholder actor
+        placeholderActor.destroy();
+        
+        console.log('[Game] Replaced placeholder with StaticCameraActor');
+      } else {
+        console.warn('[Game] camera_placeholder not found, creating camera at default position');
+        
+        // Fallback: create camera at default position
+        cameraActor = new StaticCameraActor({
+          position: new THREE.Vector3(10, 8, 10)
+        });
+        
+        cameraActor.editorData.displayName = 'Camera';
+        
+        this.world.addActor(cameraActor);
+        
+        const camera = cameraActor.getCamera();
+        if (camera) {
+          camera.lookAt(0, 1, 0);
+        }
       }
+    } else {
+      console.log('[Game] StaticCameraActor already exists in scene');
     }
-    // If a camera actor exists in the scene, it will automatically
-    // set itself as the world camera in its doBeginPlay method
   }
 }
 

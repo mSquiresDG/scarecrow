@@ -20,6 +20,10 @@ export class StaticCameraActor extends ENGINE.Actor {
       ENGINE.CAMERA_FAR
     );
 
+    // Zero out camera's local transform - it will inherit from actor/parent
+    camera.position.set(0, 0, 0);
+    camera.rotation.set(0, 0, 0);
+
     // Create a root component if not provided
     const rootComponent = options.rootComponent || new ENGINE.SceneComponent({
       position: options.position,

@@ -639,8 +639,8 @@
       }
     },
     {
-      "uuid": "51f7bbe5e4d53cc6",
-      "class": "ENGINE.Actor",
+      "uuid": "e54704e2d60f8489",
+      "class": "GAME.StaticCameraActor",
       "properties": {
         "editorData": {
           "displayName": "camera_placeholder"
@@ -650,12 +650,12 @@
         "actorTags": [],
         "rootComponent": {
           "class": "ENGINE.SceneComponent",
-          "uuid": "d6ac2412-d5f6-4643-b34a-a868acdd0afd",
+          "uuid": "b6dbbca4-8da7-4f57-8483-835185d911c5",
           "properties": {
             "position": [
-              8,
-              6.3,
-              8.6,
+              4.688429,
+              3.500292,
+              5.053496,
               "v"
             ],
             "rotation": [
@@ -702,10 +702,6 @@
           },
           {
             "id": "0080af01ca01d78c",
-            "nodeType": "actor"
-          },
-          {
-            "id": "51f7bbe5e4d53cc6",
             "nodeType": "actor"
           },
           {
@@ -770,6 +766,10 @@
           },
           {
             "id": "0d2e4f94b72d962c",
+            "nodeType": "actor"
+          },
+          {
+            "id": "e54704e2d60f8489",
             "nodeType": "actor"
           }
         ]

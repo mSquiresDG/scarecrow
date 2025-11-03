@@ -1181,6 +1181,206 @@
           }
         }
       }
+    },
+    {
+      "uuid": "02cbd9ac94ec887d",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_14"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "23bf5289b1deae76",
+          "properties": {
+            "position": [
+              1.48,
+              0,
+              1.22,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "fff961676ca7f22f",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_15"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "78563eec3bef6820",
+          "properties": {
+            "position": [
+              1.5,
+              0,
+              1.87,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "cbb45e2f3622cd10",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_16"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "321bb487218eb7ba",
+          "properties": {
+            "position": [
+              2,
+              0,
+              -1.35,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "bb99d4686b52805f",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_17"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "b11420b00c567366",
+          "properties": {
+            "position": [
+              1.97,
+              0,
+              -0.53,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "04f0c7c1a6ef017e",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_18"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "26a9a66051196522",
+          "properties": {
+            "position": [
+              1.96,
+              0,
+              0.2,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "06b3d90df6391faf",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_19"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "efdb53050c9e4e81",
+          "properties": {
+            "position": [
+              1.96,
+              0,
+              0.66,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "58df6f226a430487",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_20"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "b7defcd940ebf07c",
+          "properties": {
+            "position": [
+              1.96,
+              0,
+              1.25,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "bcf9a6693476d614",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_21"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "894d0f2755151f40",
+          "properties": {
+            "position": [
+              1.95,
+              0,
+              1.99,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
     }
   ],
   "properties": {
@@ -1343,6 +1543,38 @@
           },
           {
             "id": "9de60540e93df9bb",
+            "nodeType": "actor"
+          },
+          {
+            "id": "02cbd9ac94ec887d",
+            "nodeType": "actor"
+          },
+          {
+            "id": "fff961676ca7f22f",
+            "nodeType": "actor"
+          },
+          {
+            "id": "cbb45e2f3622cd10",
+            "nodeType": "actor"
+          },
+          {
+            "id": "bb99d4686b52805f",
+            "nodeType": "actor"
+          },
+          {
+            "id": "04f0c7c1a6ef017e",
+            "nodeType": "actor"
+          },
+          {
+            "id": "06b3d90df6391faf",
+            "nodeType": "actor"
+          },
+          {
+            "id": "58df6f226a430487",
+            "nodeType": "actor"
+          },
+          {
+            "id": "bcf9a6693476d614",
             "nodeType": "actor"
           },
           {

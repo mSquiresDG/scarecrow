@@ -22,6 +22,10 @@ export class CrowActor extends ENGINE.Actor {
   private redMaterial: THREE.MeshStandardMaterial;
   private gltfComponent: ENGINE.GLTFMeshComponent | null = null;
   private spawnTime: number = 0; // Track when bird spawned
+  private deadlineTimer: any = null; // Timer handle for 30-second deadline
+  private deadlineTimerPaused: boolean = false; // Whether the deadline timer is paused
+  private deadlineRemainingTime: number = 0; // Remaining time on paused timer
+  public readonly onDeadlineExpired = new ENGINE.Delegate<[CrowActor]>(); // Callback when time runs out
 
   constructor(options: ENGINE.ActorOptions = {}) {
     super(options);
@@ -210,6 +214,79 @@ export class CrowActor extends ENGINE.Actor {
     if (!this.gltfComponent) {
       console.error('[CrowActor] No GLTFMeshComponent found!');
     }
+    
+    // Start 30-second deadline timer
+    this.startDeadlineTimer(30.0);
+  }
+
+  /**
+   * Starts a deadline timer - if crow not clicked within timeSeconds, callback fires
+   */
+  public startDeadlineTimer(timeSeconds: number): void {
+    const world = this.getWorld();
+    if (!world) return;
+    
+    this.deadlineRemainingTime = timeSeconds;
+    this.deadlineTimerPaused = false;
+    
+    this.deadlineTimer = world.timerSystem.setTimeout(() => {
+      console.log(`[CrowActor] ⏰ ${this.name} DEADLINE EXPIRED after ${timeSeconds}s - crop eaten!`);
+      this.onDeadlineExpired.invoke(this);
+    }, timeSeconds);
+  }
+
+  /**
+   * Pauses the deadline timer (called when no valid crop is available)
+   */
+  public pauseDeadlineTimer(): void {
+    if (this.deadlineTimer && !this.deadlineTimerPaused) {
+      const world = this.getWorld();
+      if (world && world.timerSystem) {
+        // Cancel current timer
+        world.timerSystem.clearTimer(this.deadlineTimer);
+        this.deadlineTimer = null;
+        this.deadlineTimerPaused = true;
+        console.log(`[CrowActor] ⏸️ ${this.name} deadline timer PAUSED (no valid crop available)`);
+      }
+    }
+  }
+
+  /**
+   * Resumes the deadline timer (called when a valid crop becomes available)
+   */
+  public resumeDeadlineTimer(): void {
+    if (this.deadlineTimerPaused && this.deadlineRemainingTime > 0) {
+      const world = this.getWorld();
+      if (!world) return;
+      
+      this.deadlineTimerPaused = false;
+      this.deadlineTimer = world.timerSystem.setTimeout(() => {
+        console.log(`[CrowActor] ⏰ ${this.name} DEADLINE EXPIRED after resume - crop eaten!`);
+        this.onDeadlineExpired.invoke(this);
+      }, this.deadlineRemainingTime);
+      
+      console.log(`[CrowActor] ▶️ ${this.name} deadline timer RESUMED (${this.deadlineRemainingTime.toFixed(1)}s remaining)`);
+    }
+  }
+
+  /**
+   * Cancels the deadline timer (called when crow is clicked)
+   */
+  public cancelDeadlineTimer(): void {
+    if (this.deadlineTimer) {
+      const world = this.getWorld();
+      if (world && world.timerSystem) {
+        world.timerSystem.clearTimer(this.deadlineTimer);
+      }
+      this.deadlineTimer = null;
+    }
+    this.deadlineTimerPaused = false;
+    this.deadlineRemainingTime = 0;
+  }
+
+  protected override doEndPlay(): void {
+    super.doEndPlay();
+    this.cancelDeadlineTimer();
   }
 }
 

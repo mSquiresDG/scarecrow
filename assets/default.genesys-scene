@@ -648,6 +648,10 @@
       },
       "ctor": {
         "actorTags": [],
+        "fov": 60,
+        "near": 0.1,
+        "far": 2000,
+        "zoom": 2.5,
         "rootComponent": {
           "class": "ENGINE.SceneComponent",
           "uuid": "b6dbbca4-8da7-4f57-8483-835185d911c5",

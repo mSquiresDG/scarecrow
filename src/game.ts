@@ -3,6 +3,7 @@ import * as ENGINE from 'genesys.js';
 import * as THREE from 'three';
 
 import { StaticCameraActor } from './camera.js';
+import { GameplayManager } from './game/GameplayManager.js';
 import './auto-imports.js';
 
 class ScareCrowGame extends ENGINE.BaseGameLoop {
@@ -68,6 +69,21 @@ class ScareCrowGame extends ENGINE.BaseGameLoop {
       }
     } else {
       console.log('[Game] StaticCameraActor already exists in scene');
+    }
+
+    // Create GameplayManager if it doesn't exist
+    let gameplayManager = this.world.getFirstActor(GameplayManager);
+    if (!gameplayManager) {
+      console.log('[Game] Creating GameplayManager');
+      gameplayManager = new GameplayManager({
+        // Vector3: X=Crop No, Y=Crow No, Z=Speed
+        wave1: new THREE.Vector3(2, 2, 1),
+        wave2: new THREE.Vector3(2.5, 2.5, 1),
+        wave3: new THREE.Vector3(3, 3, 1),
+      });
+      this.world.addActor(gameplayManager);
+    } else {
+      console.log('[Game] GameplayManager already exists in scene');
     }
   }
 }

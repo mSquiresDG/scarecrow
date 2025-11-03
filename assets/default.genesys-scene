@@ -169,7 +169,10 @@
           "class": "ENGINE.GLTFMeshComponent",
           "uuid": "7b05e19c-1f8e-4ecb-aa6d-5da2df977399",
           "ctor": {
-            "modelUrl": "@project/assets/models/SM_FloorBorderBase_01.glb"
+            "modelUrl": "@project/assets/models/SM_FloorBorderBase_01.glb",
+            "physicsOptions": {
+              "enabled": false
+            }
           },
           "properties": {
             "name": "GLTFMeshComponent"
@@ -203,7 +206,10 @@
           "class": "ENGINE.GLTFMeshComponent",
           "uuid": "eb1664c0-43d9-4dd1-a4db-b28375b5c0e8",
           "ctor": {
-            "modelUrl": "@project/assets/models/SM_ScarecrowZone01.glb"
+            "modelUrl": "@project/assets/models/SM_ScarecrowZone01.glb",
+            "physicsOptions": {
+              "enabled": false
+            }
           },
           "properties": {
             "name": "GLTFMeshComponent"
@@ -215,12 +221,18 @@
       "uuid": "a07416cb3352d43d",
       "properties": {
         "editorData": {
-          "hidden": true
+          "hidden": false
         }
       },
       "ctor": {
         "rootComponent": {
           "uuid": "7bce6f1d96713de5",
+          "ctor": {
+            "physicsOptions": {
+              "enabled": false,
+              "generateCollisionEvents": false
+            }
+          },
           "children": [
             {
               "uuid": "8b92eceaf408a682"
@@ -245,7 +257,11 @@
           "class": "ENGINE.GLTFMeshComponent",
           "uuid": "ebae3410-8a70-4bbb-b136-dbb30d9fd98f",
           "ctor": {
-            "modelUrl": "@project/assets/models/env/SM_Ploughed_X01.glb"
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_X01.glb",
+            "physicsOptions": {
+              "enabled": false,
+              "generateCollisionEvents": false
+            }
           },
           "properties": {
             "position": [
@@ -274,7 +290,11 @@
           "class": "ENGINE.GLTFMeshComponent",
           "uuid": "2cb41249-7f39-4f2d-894d-69e1be28a593",
           "ctor": {
-            "modelUrl": "@project/assets/models/env/SM_Ploughed_X02.glb"
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_X02.glb",
+            "physicsOptions": {
+              "enabled": false,
+              "generateCollisionEvents": false
+            }
           },
           "properties": {
             "position": [
@@ -297,7 +317,11 @@
           "class": "ENGINE.GLTFMeshComponent",
           "uuid": "23e5d731-b691-4c91-920c-e1e9e710ae0b",
           "ctor": {
-            "modelUrl": "@project/assets/models/env/SM_Ploughed_Y01.glb"
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_Y01.glb",
+            "physicsOptions": {
+              "enabled": false,
+              "generateCollisionEvents": false
+            }
           },
           "properties": {
             "position": [
@@ -320,7 +344,11 @@
           "class": "ENGINE.GLTFMeshComponent",
           "uuid": "e2b79711-dc72-4573-af96-503ad6e339a2",
           "ctor": {
-            "modelUrl": "@project/assets/models/env/SM_Ploughed_Y02.glb"
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_Y02.glb",
+            "physicsOptions": {
+              "enabled": false,
+              "generateCollisionEvents": false
+            }
           },
           "properties": {
             "position": [
@@ -349,7 +377,11 @@
           "class": "ENGINE.GLTFMeshComponent",
           "uuid": "9626e4e4-f18a-4409-804f-bb0d20265914",
           "ctor": {
-            "modelUrl": "@project/assets/models/env/SM_Ploughed_X03.glb"
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_X03.glb",
+            "physicsOptions": {
+              "enabled": false,
+              "generateCollisionEvents": false
+            }
           },
           "properties": {
             "position": [
@@ -377,7 +409,11 @@
           "class": "ENGINE.GLTFMeshComponent",
           "uuid": "a5c8a31453594452",
           "ctor": {
-            "modelUrl": "@project/assets/models/env/SM_Ploughed_X03.glb"
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_X03.glb",
+            "physicsOptions": {
+              "enabled": false,
+              "generateCollisionEvents": false
+            }
           },
           "properties": {
             "position": [
@@ -405,7 +441,11 @@
           "class": "ENGINE.GLTFMeshComponent",
           "uuid": "828a94a47c5b4b78",
           "ctor": {
-            "modelUrl": "@project/assets/models/env/SM_Ploughed_X03.glb"
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_X03.glb",
+            "physicsOptions": {
+              "enabled": false,
+              "generateCollisionEvents": false
+            }
           },
           "properties": {
             "position": [
@@ -433,7 +473,11 @@
           "class": "ENGINE.GLTFMeshComponent",
           "uuid": "62c7bbaccc15e35b",
           "ctor": {
-            "modelUrl": "@project/assets/models/env/SM_Ploughed_X03.glb"
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_X03.glb",
+            "physicsOptions": {
+              "enabled": false,
+              "generateCollisionEvents": false
+            }
           },
           "properties": {
             "position": [
@@ -461,7 +505,11 @@
           "class": "ENGINE.GLTFMeshComponent",
           "uuid": "f675eb97e33d3c02",
           "ctor": {
-            "modelUrl": "@project/assets/models/env/SM_Ploughed_Y02.glb"
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_Y02.glb",
+            "physicsOptions": {
+              "enabled": false,
+              "generateCollisionEvents": false
+            }
           },
           "properties": {
             "position": [
@@ -495,7 +543,11 @@
           "class": "ENGINE.GLTFMeshComponent",
           "uuid": "4c19fc6bfa19d245",
           "ctor": {
-            "modelUrl": "@project/assets/models/env/SM_Ploughed_Y01.glb"
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_Y01.glb",
+            "physicsOptions": {
+              "enabled": false,
+              "generateCollisionEvents": false
+            }
           },
           "properties": {
             "position": [
@@ -523,7 +575,11 @@
           "class": "ENGINE.GLTFMeshComponent",
           "uuid": "3db43c1dc9be3620",
           "ctor": {
-            "modelUrl": "@project/assets/models/env/SM_Ploughed_Y01.glb"
+            "modelUrl": "@project/assets/models/env/SM_Ploughed_Y01.glb",
+            "physicsOptions": {
+              "enabled": false,
+              "generateCollisionEvents": false
+            }
           },
           "properties": {
             "position": [
@@ -648,18 +704,20 @@
       },
       "ctor": {
         "actorTags": [],
-        "fieldOfView": 90,
+        "fieldOfView": 40,
         "near": 0.1,
         "far": 2000,
         "zoom": 1.5,
+        "useOrthographic": false,
+        "orthographicSize": 10,
         "rootComponent": {
           "class": "ENGINE.SceneComponent",
           "uuid": "fd10c2c8-da84-4309-a959-6f558eaa671b",
           "properties": {
             "position": [
-              4.688429,
-              3.500292,
-              5.053496,
+              4.926309,
+              3.71005,
+              5.313411,
               "v"
             ],
             "rotation": [
@@ -667,6 +725,407 @@
               0.631837,
               0.436291,
               "e"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "3e997f5617e65326",
+      "class": "ENGINE.Actor",
+      "ctor": {
+        "rootComponent": {
+          "class": "ENGINE.HemisphereLightComponent",
+          "uuid": "916cd87f-6c4e-4793-ab4a-85da341f36d3",
+          "ctor": {
+            "skyColor": 16777215,
+            "groundColor": 4473924,
+            "intensity": 1
+          },
+          "properties": {
+            "position": [
+              -1.17,
+              0.89,
+              0.75,
+              "v"
+            ],
+            "name": "HemisphereLightComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "4e8a0ce9fe090ac5",
+      "ctor": {
+        "rootComponent": {
+          "uuid": "df025406-0858-4a2e-b946-6014a691784f"
+        }
+      },
+      "prefabName": "@project/assets/prefab/P_Crow_01.prefab.json"
+    },
+    {
+      "uuid": "bb87912c454a2a50",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "3ec80f13-3aff-4fe8-88f3-2b7f8b255551",
+          "properties": {
+            "position": [
+              -1.35,
+              0,
+              0.81,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "2feeaeabad121e43",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_02"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "46725e414d4a602b",
+          "properties": {
+            "position": [
+              -1.35,
+              0,
+              0.01,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "7f41cf1706c65d60",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_03"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "c37e187f9512439f",
+          "properties": {
+            "position": [
+              -1.35,
+              0,
+              -0.83,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "420fffe882ef3700",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_04"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "720607f5239a4d1c",
+          "properties": {
+            "position": [
+              -1.29,
+              0,
+              -1.36,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "61af95c31ed9fe2f",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_05"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "76f0f62a2be79996",
+          "properties": {
+            "position": [
+              -0.6,
+              0,
+              -1.36,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "272362d183aaf278",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_06"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "bb9c7a0607894784",
+          "properties": {
+            "position": [
+              -0.07,
+              0,
+              -1.36,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "0e43a36bf53bdf7d",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_07"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "b7d1f5c4a9ba3092",
+          "properties": {
+            "position": [
+              0.55,
+              0,
+              -1.36,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "836560ae5c0d01a4",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_08"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "31b7c573858de11c",
+          "properties": {
+            "position": [
+              -1.22,
+              0,
+              1.23,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "2d0c2995826ac4bd",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_09"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "4c20fb2d19814ee4",
+          "properties": {
+            "position": [
+              -0.47,
+              0,
+              1.23,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "cf0a3f00727fb559",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_10"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "7d57a8a52b327d20",
+          "properties": {
+            "position": [
+              0.26,
+              0,
+              1.23,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "e8fc4310e65ef313",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_11"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "246eb04c46655fe5",
+          "properties": {
+            "position": [
+              1.48,
+              0,
+              -0.63,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "9fd5b077b938aa4b",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_12"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "21b4e70866b05c9b",
+          "properties": {
+            "position": [
+              1.48,
+              0,
+              0,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "9de60540e93df9bb",
+      "class": "GAME.CropMarkerActor",
+      "properties": {
+        "editorData": {
+          "displayName": "CropMarker_13"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "4e0b5001e50205c2",
+          "properties": {
+            "position": [
+              1.48,
+              0,
+              0.63,
+              "v"
+            ],
+            "name": "SceneComponent"
+          }
+        }
+      }
+    },
+    {
+      "uuid": "63dc66ff21ef2cf2",
+      "class": "GAME.GameplayManager",
+      "properties": {
+        "editorData": {
+          "displayName": "GameplayManager"
+        }
+      },
+      "ctor": {
+        "actorTags": [],
+        "wave1": [
+          5,
+          10,
+          1,
+          "v"
+        ],
+        "wave2": [
+          10,
+          15,
+          1,
+          "v"
+        ],
+        "wave3": [
+          15,
+          20,
+          2,
+          "v"
+        ],
+        "rootComponent": {
+          "class": "ENGINE.SceneComponent",
+          "uuid": "95faa9e9-d587-4aa7-ba1e-f0132fd015a3",
+          "properties": {
+            "position": [
+              -4.74,
+              0,
+              -4.91,
+              "v"
             ],
             "name": "SceneComponent"
           }
@@ -774,6 +1233,70 @@
           },
           {
             "id": "3911dfe612683fc9",
+            "nodeType": "actor"
+          },
+          {
+            "id": "3e997f5617e65326",
+            "nodeType": "actor"
+          },
+          {
+            "id": "4e8a0ce9fe090ac5",
+            "nodeType": "actor"
+          },
+          {
+            "id": "bb87912c454a2a50",
+            "nodeType": "actor"
+          },
+          {
+            "id": "2feeaeabad121e43",
+            "nodeType": "actor"
+          },
+          {
+            "id": "7f41cf1706c65d60",
+            "nodeType": "actor"
+          },
+          {
+            "id": "420fffe882ef3700",
+            "nodeType": "actor"
+          },
+          {
+            "id": "61af95c31ed9fe2f",
+            "nodeType": "actor"
+          },
+          {
+            "id": "272362d183aaf278",
+            "nodeType": "actor"
+          },
+          {
+            "id": "0e43a36bf53bdf7d",
+            "nodeType": "actor"
+          },
+          {
+            "id": "836560ae5c0d01a4",
+            "nodeType": "actor"
+          },
+          {
+            "id": "2d0c2995826ac4bd",
+            "nodeType": "actor"
+          },
+          {
+            "id": "cf0a3f00727fb559",
+            "nodeType": "actor"
+          },
+          {
+            "id": "e8fc4310e65ef313",
+            "nodeType": "actor"
+          },
+          {
+            "id": "9fd5b077b938aa4b",
+            "nodeType": "actor"
+          },
+          {
+            "id": "9de60540e93df9bb",
+            "nodeType": "actor"
+          },
+          {
+            "id": "63dc66ff21ef2cf2",
             "nodeType": "actor"
           }
         ]

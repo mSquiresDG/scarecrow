@@ -1,0 +1,31 @@
+{
+  "$version": 0,
+  "class": "ENGINE.GLTFMeshActor",
+  "properties": {
+    "editorData": {
+      "displayName": "P_Crow_01"
+    }
+  },
+  "ctor": {
+    "modelUrl": "@project/assets/models/SM_Crow_01.glb",
+    "rootComponent": {
+      "class": "ENGINE.GLTFMeshComponent",
+      "ctor": {
+        "modelUrl": "@project/assets/models/SM_Crow_01.glb",
+        "physicsOptions": {
+          "collisionMeshType": "boundingBox",
+          "enableCCD": true
+        }
+      },
+      "properties": {
+        "position": [
+          1.011979,
+          0.167733,
+          1.799533,
+          "v"
+        ],
+        "name": "GLTFMeshComponent"
+      }
+    }
+  }
+}

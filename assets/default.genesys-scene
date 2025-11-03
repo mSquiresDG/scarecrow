@@ -756,15 +756,6 @@
       }
     },
     {
-      "uuid": "4e8a0ce9fe090ac5",
-      "ctor": {
-        "rootComponent": {
-          "uuid": "df025406-0858-4a2e-b946-6014a691784f"
-        }
-      },
-      "prefabName": "@project/assets/prefab/P_Crow_01.prefab.json"
-    },
-    {
       "uuid": "bb87912c454a2a50",
       "class": "GAME.CropMarkerActor",
       "properties": {
@@ -1487,10 +1478,6 @@
           },
           {
             "id": "3e997f5617e65326",
-            "nodeType": "actor"
-          },
-          {
-            "id": "4e8a0ce9fe090ac5",
             "nodeType": "actor"
           },
           {

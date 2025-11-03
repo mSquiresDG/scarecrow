@@ -19,13 +19,25 @@
       },
       "properties": {
         "position": [
-          1.011979,
-          0.167733,
-          1.799533,
+          1.013958,
+          0.315466,
+          1.769066,
           "v"
         ],
         "name": "GLTFMeshComponent"
-      }
+      },
+      "children": [
+        {
+          "class": "ENGINE.AnimationComponent",
+          "ctor": {
+            "autoPlay": true,
+            "loopMode": "LoopRepeat"
+          },
+          "properties": {
+            "name": "AnimationComponent"
+          }
+        }
+      ]
     }
   }
 }

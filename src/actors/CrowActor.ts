@@ -21,6 +21,7 @@ export class CrowActor extends ENGINE.Actor {
   private originalMaterials: Map<THREE.Mesh, THREE.Material | THREE.Material[]> = new Map();
   private redMaterial: THREE.MeshStandardMaterial;
   private gltfComponent: ENGINE.GLTFMeshComponent | null = null;
+  private animComponent: ENGINE.AnimationComponent | null = null;
   private spawnTime: number = 0; // Track when bird spawned
   private deadlineTimer: any = null; // Timer handle for 30-second deadline
   private deadlineTimerPaused: boolean = false; // Whether the deadline timer is paused
@@ -50,6 +51,14 @@ export class CrowActor extends ENGINE.Actor {
     });
     this.setRootComponent(gltfMesh, true);
     this.gltfComponent = gltfMesh;
+    
+    // Add animation component as child of GLTF mesh (same as prefab structure)
+    const animComponent = new ENGINE.AnimationComponent({
+      autoPlay: true,
+      loopMode: 'LoopRepeat' // Loops the flight animation continuously
+    });
+    gltfMesh.add(animComponent);
+    this.animComponent = animComponent;
     
     this.editorData.displayName = 'Crow';
   }
@@ -175,6 +184,12 @@ export class CrowActor extends ENGINE.Actor {
       const finalPos = targetPos.clone();
       this.setWorldPosition(finalPos);
       
+      // Stop animation when landed
+      if (this.animComponent) {
+        this.animComponent.stopAnimation();
+        console.log(`[CrowActor] ⏸️ Stopped flight animation for ${this.name}`);
+      }
+      
       // Calculate time taken and position accuracy
       const world = this.getWorld();
       const currentTime = world ? world.getGameTime() : 0;
@@ -210,11 +225,7 @@ export class CrowActor extends ENGINE.Actor {
     const world = this.getWorld();
     this.spawnTime = world ? world.getGameTime() : 0;
     
-    // GLTF component is already set in constructor
-    if (!this.gltfComponent) {
-      console.error('[CrowActor] No GLTFMeshComponent found!');
-    }
-    
+    // AnimationComponent is set to autoPlay in constructor, so animation starts automatically
     // Note: Deadline timer is now started by GameplayManager with adjusted time
   }
 

@@ -65,6 +65,9 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
   private uiContainer: HTMLElement | null = null;
   private startButton: HTMLButtonElement | null = null;
   private messageOverlay: HTMLElement | null = null;
+  private birdCounter: HTMLElement | null = null;
+  private birdCounterText: HTMLElement | null = null;
+  private destroyedBirdsCount: number = 0;
 
   constructor(options: GameplayManagerOptions = {}) {
     const mergedOptions = { ...GameplayManager.DEFAULT_OPTIONS, ...options };
@@ -92,7 +95,7 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     this.editorData.displayName = 'GameplayManager';
   }
 
-  private createUI(): void {
+  private async createUI(): Promise<void> {
     const world = this.getWorld();
     if (!world) return;
 
@@ -108,41 +111,23 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
       font-family: Arial, sans-serif;
     `;
 
-    // Start button (scarecrow icon)
+    // Start button with image logo - responsive sizing
     this.startButton = document.createElement('button');
-    this.startButton.innerHTML = `
-      <svg width="200" height="200" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-        <!-- Background rounded square -->
-        <rect x="8" y="8" width="240" height="240" rx="40" ry="40" 
-              fill="#F5E6D3" stroke="#654321" stroke-width="8"/>
-        
-        <!-- Scarecrow silhouette -->
-        <g fill="#654321">
-          <!-- Hat -->
-          <rect x="95" y="40" width="66" height="30" rx="8"/>
-          
-          <!-- Head -->
-          <circle cx="128" cy="85" r="25"/>
-          
-          <!-- Body (shirt/stick) -->
-          <rect x="108" y="110" width="40" height="80" rx="5"/>
-          
-          <!-- Arms (horizontal stick) -->
-          <rect x="50" y="125" width="156" height="20" rx="10"/>
-          
-          <!-- Stick bottom -->
-          <rect x="118" y="190" width="20" height="50" rx="5"/>
-        </g>
-      </svg>
-      <div style="
-        margin-top: 20px;
-        font-size: 32px;
-        font-weight: bold;
-        color: #654321;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        letter-spacing: 2px;
-      ">CLICK TO START</div>
+    
+    // Detect if mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    const buttonScale = isMobile ? 0.5 : 1.0; // 50% smaller on mobile
+    
+    const buttonHTML = `
+      <img src="@project/assets/textures/T_Startbutton02.png" alt="Start Game" style="
+        max-width: ${300 * buttonScale}px;
+        max-height: ${200 * buttonScale}px;
+        filter: drop-shadow(3px 3px 6px rgba(0,0,0,0.4));
+      ">
     `;
+    
+    // Resolve asset paths in the HTML
+    this.startButton.innerHTML = await ENGINE.resolveAssetPathsInText(buttonHTML);
     
     this.startButton.style.cssText = `
       position: absolute;
@@ -220,8 +205,67 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
       box-shadow: 0 4px 20px rgba(0,0,0,0.8);
     `;
 
+    // Bird counter
+    this.birdCounter = document.createElement('div');
+    const counterHTML = `
+      <div style="
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2px;
+        padding: 4px;
+        background: transparent;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        border-radius: 8px;
+        box-shadow: 0 0.3vh 1vh rgba(0,0,0,0.3);
+        height: 100%;
+        width: 100%;
+        box-sizing: border-box;
+      ">
+        <img src="@project/assets/textures/UI_CrowFacing_01.png" alt="Bird" style="
+          width: 32px;
+          height: 90px;
+          object-fit: contain;
+          flex-shrink: 0;
+        ">
+        <span id="bird-count-text" style="
+          font-size: 20px;
+          font-weight: bold;
+          color: white;
+          text-align: right;
+          flex-shrink: 0;
+          transform: scaleY(4.5);
+          margin-right: 2px;
+        ">00</span>
+      </div>
+    `;
+    
+    // Resolve asset paths in the HTML
+    this.birdCounter.innerHTML = await ENGINE.resolveAssetPathsInText(counterHTML);
+    
+    // Top of screen positioning - tight to the very top
+    this.birdCounter.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 5vw;
+      height: 7.5vh;
+      min-width: 60px;
+      min-height: 75px;
+      max-width: 100px;
+      max-height: 120px;
+      z-index: 1001;
+      pointer-events: none;
+    `;
+    
+    // Get reference to the counter text element
+    this.birdCounterText = this.birdCounter.querySelector('#bird-count-text');
+
     this.uiContainer.appendChild(this.startButton);
     this.uiContainer.appendChild(this.messageOverlay);
+    this.uiContainer.appendChild(this.birdCounter);
     world.gameContainer.appendChild(this.uiContainer);
   }
 
@@ -243,6 +287,10 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     
     console.log('[GameplayManager] ========== GAME STARTED ==========');
     this.gameStarted = true;
+    
+    // Reset bird counter
+    this.destroyedBirdsCount = 0;
+    this.updateBirdCounterDisplay();
     
     // Find all crow spawners in the scene
     const world = this.getWorld();
@@ -374,6 +422,10 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     // Reset spawn tracking
     this.totalCrowsToSpawn = 0;
     this.crowsSpawnedThisWave = 0;
+    
+    // Reset bird counter
+    this.destroyedBirdsCount = 0;
+    this.updateBirdCounterDisplay();
     
     // Show start button again
     if (this.startButton) {
@@ -695,10 +747,25 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
       console.log(`[GameplayManager] 🧹 Crow was not in any crop tracking sets`);
     }
     
-    // 5. Destroy the actor (removes from world)
+    // 5. Increment destroyed birds counter and update UI
+    this.destroyedBirdsCount++;
+    this.updateBirdCounterDisplay();
+    
+    // 6. Destroy the actor (removes from world)
     crow.destroy();
     
-    console.log(`[GameplayManager] ✅ CLEANUP COMPLETE for "${crow.name}"`);
+    console.log(`[GameplayManager] ✅ CLEANUP COMPLETE for "${crow.name}" | Total birds destroyed: ${this.destroyedBirdsCount}`);
+  }
+
+  /**
+   * Updates the bird counter display with the current count
+   */
+  private updateBirdCounterDisplay(): void {
+    if (this.birdCounterText) {
+      // Format count as two digits (00, 01, 02, etc.)
+      const formattedCount = this.destroyedBirdsCount.toString().padStart(2, '0');
+      this.birdCounterText.textContent = formattedCount;
+    }
   }
 
   private checkWaveComplete(): void {
@@ -742,11 +809,43 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     }
   }
 
-  protected override doBeginPlay(): void {
+  protected override async doBeginPlay(): Promise<void> {
     super.doBeginPlay();
-    this.createUI();
+    await this.createUI();
     this.setupInputHandling();
     this.findScarecrow();
+    this.hideMobileJoysticks();
+  }
+
+  /**
+   * Hides the mobile virtual joysticks since this game is tap-based only
+   */
+  private hideMobileJoysticks(): void {
+    const world = this.getWorld();
+    if (!world) return;
+
+    // Find and hide the nipplejs joystick zones
+    const gameContainer = world.gameContainer;
+    
+    // Query for all joystick zones created by nipplejs
+    const joystickZones = gameContainer.querySelectorAll('[style*="position: absolute"][style*="bottom: 20px"]');
+    
+    joystickZones.forEach((zone) => {
+      const element = zone as HTMLElement;
+      // Check if it's positioned at left or right (nipplejs zones)
+      if (element.style.left === '20px' || element.style.right === '20px') {
+        element.style.display = 'none';
+        console.log('[GameplayManager] 🎮 Hidden mobile joystick zone');
+      }
+    });
+
+    // Alternative: Hide by looking for nipplejs-specific classes
+    const nippleElements = gameContainer.querySelectorAll('[class*="nipple"]');
+    nippleElements.forEach((element) => {
+      (element as HTMLElement).style.display = 'none';
+    });
+
+    console.log(`[GameplayManager] 🎮 Mobile joysticks hidden (tap-based game only)`);
   }
 
   /**

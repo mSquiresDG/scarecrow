@@ -993,7 +993,7 @@
             "position": [
               1.96,
               0,
-              1.06,
+              1.345,
               "v"
             ],
             "name": "SceneComponent"
@@ -1018,7 +1018,7 @@
             "position": [
               1.96,
               0,
-              1.39,
+              1.675,
               "v"
             ],
             "name": "SceneComponent"
@@ -1038,14 +1038,14 @@
         "actorTags": [],
         "rootComponent": {
           "class": "ENGINE.GLTFMeshComponent",
-          "uuid": "3b79b534-804c-4177-8516-654184b21f74",
+          "uuid": "ea83f28c-0495-4ec3-b34d-fdd61090551d",
           "ctor": {
             "modelUrl": "@project/assets/models/scareCrow/SM_ScareCrow_Stick.glb"
           },
           "children": [
             {
               "class": "ENGINE.GLTFMeshComponent",
-              "uuid": "67f14781-1623-457e-94b6-02b5fdb639b5",
+              "uuid": "1a88dac6-9729-4310-917e-d6df1c85a141",
               "ctor": {
                 "modelUrl": "@project/assets/models/scareCrow/SM_ScareCrow_Tshirt.glb"
               },
@@ -1060,7 +1060,7 @@
             },
             {
               "class": "ENGINE.GLTFMeshComponent",
-              "uuid": "0e7d5e87-e51e-4f40-8de7-6cac3d789d8e",
+              "uuid": "638c77ac-02ed-446c-9029-84688e3544c3",
               "ctor": {
                 "modelUrl": "@project/assets/models/scareCrow/SM_Scarecrow_Head.glb"
               },
@@ -1075,7 +1075,7 @@
             },
             {
               "class": "ENGINE.GLTFMeshComponent",
-              "uuid": "1dca1d2c-77ca-479e-b28e-3deb7a7a8848",
+              "uuid": "8757e36f-54a0-4a86-8681-422a70d02894",
               "ctor": {
                 "modelUrl": "@project/assets/models/scareCrow/SM_ScareCrow_Hat.glb"
               },
@@ -1209,31 +1209,6 @@
               0.52,
               0,
               1.67,
-              "v"
-            ],
-            "name": "SceneComponent"
-          }
-        }
-      }
-    },
-    {
-      "uuid": "b74c94eaed5e4094",
-      "class": "GAME.CropMarkerActor",
-      "properties": {
-        "editorData": {
-          "displayName": "CropMarker_18"
-        }
-      },
-      "ctor": {
-        "actorTags": [],
-        "rootComponent": {
-          "class": "ENGINE.SceneComponent",
-          "uuid": "74a6b6d1765c6ba1",
-          "properties": {
-            "position": [
-              1.48,
-              0,
-              0.4,
               "v"
             ],
             "name": "SceneComponent"
@@ -1403,10 +1378,6 @@
           },
           {
             "id": "9de60540e93df9bb",
-            "nodeType": "actor"
-          },
-          {
-            "id": "b74c94eaed5e4094",
             "nodeType": "actor"
           },
           {

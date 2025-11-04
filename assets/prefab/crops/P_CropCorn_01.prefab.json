@@ -13,7 +13,7 @@
       "properties": {
         "position": [
           0,
-          0.981492,
+          1.472238,
           0,
           "v"
         ],
@@ -27,7 +27,7 @@
               "collisionProfile": "Trigger"
             },
             "shapeType": "cube",
-            "enableDebugVisualization": true,
+            "enableDebugVisualization": false,
             "size": [
               2,
               2,
@@ -66,8 +66,6 @@
             "excludeFromNavigation": false,
             "useDynamicMaterials": false,
             "physicsOptions": {
-              "enabled": true,
-              "motionType": "static",
               "generateCollisionEvents": false,
               "collisionMeshType": "boundingBox",
               "ignoreForInputCollision": false

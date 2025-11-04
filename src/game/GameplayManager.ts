@@ -108,38 +108,89 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
       font-family: Arial, sans-serif;
     `;
 
-    // Start button
+    // Start button (scarecrow icon)
     this.startButton = document.createElement('button');
-    this.startButton.textContent = 'START GAME';
+    this.startButton.innerHTML = `
+      <svg width="200" height="200" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+        <!-- Background rounded square -->
+        <rect x="8" y="8" width="240" height="240" rx="40" ry="40" 
+              fill="#F5E6D3" stroke="#654321" stroke-width="8"/>
+        
+        <!-- Scarecrow silhouette -->
+        <g fill="#654321">
+          <!-- Hat -->
+          <rect x="95" y="40" width="66" height="30" rx="8"/>
+          
+          <!-- Head -->
+          <circle cx="128" cy="85" r="25"/>
+          
+          <!-- Body (shirt/stick) -->
+          <rect x="108" y="110" width="40" height="80" rx="5"/>
+          
+          <!-- Arms (horizontal stick) -->
+          <rect x="50" y="125" width="156" height="20" rx="10"/>
+          
+          <!-- Stick bottom -->
+          <rect x="118" y="190" width="20" height="50" rx="5"/>
+        </g>
+      </svg>
+      <div style="
+        margin-top: 20px;
+        font-size: 32px;
+        font-weight: bold;
+        color: #654321;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        letter-spacing: 2px;
+      ">CLICK TO START</div>
+    `;
+    
     this.startButton.style.cssText = `
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      padding: 20px 40px;
-      font-size: 24px;
-      font-weight: bold;
-      background: #00ff00;
-      color: #000;
-      border: 4px solid #000;
-      border-radius: 10px;
+      background: transparent;
+      border: none;
       cursor: pointer;
       pointer-events: all;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: pulse 2s ease-in-out infinite;
     `;
+    
+    // Add CSS animation for pulsing
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes pulse {
+        0%, 100% {
+          transform: translate(-50%, -50%) scale(1);
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.1);
+        }
+      }
+      
+      @keyframes pulse-hover {
+        0%, 100% {
+          transform: translate(-50%, -50%) scale(1.15);
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.25);
+        }
+      }
+    `;
+    document.head.appendChild(style);
     
     this.startButton.onmouseenter = () => {
       if (this.startButton) {
-        this.startButton.style.background = '#00cc00';
-        this.startButton.style.transform = 'translate(-50%, -50%) scale(1.05)';
+        this.startButton.style.animation = 'pulse-hover 1s ease-in-out infinite';
       }
     };
     
     this.startButton.onmouseleave = () => {
       if (this.startButton) {
-        this.startButton.style.background = '#00ff00';
-        this.startButton.style.transform = 'translate(-50%, -50%) scale(1)';
+        this.startButton.style.animation = 'pulse 2s ease-in-out infinite';
       }
     };
     

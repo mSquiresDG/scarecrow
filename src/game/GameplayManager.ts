@@ -104,7 +104,6 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
   private async createUI(): Promise<void> {
     const world = this.getWorld();
     if (!world) return;
-
     this.uiContainer = document.createElement('div');
     this.uiContainer.style.cssText = `
       position: absolute;
@@ -118,6 +117,7 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     `;
 
     // Start button with image logo - responsive sizing
+    const buttonStartTime = performance.now();
     this.startButton = document.createElement('button');
     
     // Detect if mobile device
@@ -221,7 +221,7 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
       top: 0;
       left: 50%;
       transform: translateX(-50%);
-      display: flex;
+      display: none;
       flex-direction: row;
       align-items: center;
       gap: 10px;
@@ -329,6 +329,7 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     this.uiContainer.appendChild(this.startButton);
     this.uiContainer.appendChild(this.messageOverlay);
     this.uiContainer.appendChild(this.countersContainer);
+    
     world.gameContainer.appendChild(this.uiContainer);
   }
 
@@ -350,6 +351,11 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     
     console.log('[GameplayManager] ========== GAME STARTED ==========');
     this.gameStarted = true;
+    
+    // Show the counters when game starts
+    if (this.countersContainer) {
+      this.countersContainer.style.display = 'flex';
+    }
     
     // Reset bird counter
     this.destroyedBirdsCount = 0;
@@ -506,9 +512,12 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     this.remainingCropsCount = 0;
     this.updateCropCounterDisplay();
     
-    // Show start button again
+    // Show start button again and hide counters
     if (this.startButton) {
       this.startButton.style.display = 'block';
+    }
+    if (this.countersContainer) {
+      this.countersContainer.style.display = 'none';
     }
     
     console.log(`[GameplayManager] 🔄 Game reset - ready to start again`);
@@ -1035,11 +1044,60 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
   }
 
   protected override async doBeginPlay(): Promise<void> {
+    const startTime = performance.now();
+    console.log('[GameplayManager] 🚀 PERFORMANCE: Startup initiated');
+    
+    const superStartTime = performance.now();
     super.doBeginPlay();
+    const superEndTime = performance.now();
+    console.log(`[GameplayManager] 🚀 PERFORMANCE: Engine init took ${(superEndTime - superStartTime).toFixed(2)}ms`);
+    
+    // Preload critical assets in parallel while UI is being created
+    const preloadStartTime = performance.now();
+    const preloadPromise = this.preloadCriticalAssets();
+    
+    const uiStartTime = performance.now();
     await this.createUI();
+    const uiEndTime = performance.now();
+    console.log(`[GameplayManager] 🚀 PERFORMANCE: UI creation took ${(uiEndTime - uiStartTime).toFixed(2)}ms`);
+    
+    // Wait for preloading to complete
+    await preloadPromise;
+    const preloadEndTime = performance.now();
+    console.log(`[GameplayManager] 🚀 PERFORMANCE: Asset preloading took ${(preloadEndTime - preloadStartTime).toFixed(2)}ms`);
+    
     this.setupInputHandling();
     this.findScarecrow();
-    this.hideMobileJoysticks();
+    
+    // Defer mobile joystick removal to not block startup
+    setTimeout(() => this.hideMobileJoysticks(), 100);
+    
+    const totalTime = performance.now() - startTime;
+    console.log(`[GameplayManager] 🚀 PERFORMANCE: Total startup took ${totalTime.toFixed(2)}ms`);
+  }
+
+  /**
+   * Preloads critical assets in parallel to improve startup performance
+   */
+  private async preloadCriticalAssets(): Promise<void> {
+    try {
+      // Preload critical 3D models using engine's resource manager
+      const modelPromises = [
+        ENGINE.resourceManager.loadModel(ENGINE.AssetPath.fromString('@project/assets/models/SM_Crow_01.glb')).catch(() => null),
+        ENGINE.resourceManager.loadModel(ENGINE.AssetPath.fromString('@project/assets/models/SM_Corn_01.glb')).catch(() => null)
+      ];
+      
+      // Don't await models - let them load in background
+      Promise.allSettled(modelPromises).then(results => {
+        const loadedModels = results.filter(p => p.status === 'fulfilled' && p.value !== null).length;
+        if (loadedModels > 0) {
+          console.log(`[GameplayManager] 🚀 PERFORMANCE: Preloaded ${loadedModels}/2 models`);
+        }
+      });
+      
+    } catch (error) {
+      // Silent fail for preloading
+    }
   }
 
   /**
@@ -1179,7 +1237,6 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     
     // Check for any new elements that might be mobile controls
     const allElements = gameContainer.querySelectorAll('*');
-    console.log(`[GameplayManager] 🔍 DEBUG: Delayed check - scanning ${allElements.length} total elements`);
     
     let removedCount = 0;
     const elementsToRemove: HTMLElement[] = [];
@@ -1206,12 +1263,6 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
         id.includes('gamepad');
       
       if (isNippleControl) {
-        console.log(`[GameplayManager] 🔍 DEBUG: Found mobile control for removal:`, {
-          tagName: htmlElement.tagName,
-          className: htmlElement.className,
-          id: htmlElement.id,
-          style: htmlElement.style.cssText
-        });
         elementsToRemove.push(htmlElement);
       }
     });
@@ -1229,21 +1280,21 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
         if (element.parentNode) {
           element.parentNode.removeChild(element);
           removedCount++;
-          console.log('[GameplayManager] 🗑️ REMOVED mobile control from DOM');
         }
       } catch (error) {
-        console.log('[GameplayManager] ⚠️ Could not remove element:', error);
         // Fallback to hiding
         element.style.display = 'none';
         element.style.visibility = 'hidden';
         element.style.opacity = '0';
         element.style.pointerEvents = 'none';
         removedCount++;
-        console.log('[GameplayManager] 🎮 Hidden mobile control (fallback)');
       }
     });
     
-    console.log(`[GameplayManager] 🎮 Aggressive removal complete - removed/hidden ${removedCount} elements`);
+    // Only log if we actually removed something
+    if (removedCount > 0) {
+      console.log(`[GameplayManager] 🎮 Removed ${removedCount} additional mobile controls`);
+    }
   }
 
   /**

@@ -73,7 +73,8 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
   private totalCropsCount: number = 0;
   private remainingCropsCount: number = 0;
   private countersContainer: HTMLElement | null = null;
-  private cropPulseIntervals: Map<ENGINE.Actor, any> = new Map(); // Track pulsing intervals for crops
+  private globalPulseInterval: NodeJS.Timeout | null = null; // Global crop pulsing update interval
+  private resultsScreen: HTMLElement | null = null; // Results screen overlay
 
   constructor(options: GameplayManagerOptions = {}) {
     const mergedOptions = { ...GameplayManager.DEFAULT_OPTIONS, ...options };
@@ -391,6 +392,13 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
       return;
     }
 
+    // Clear previous wave crops
+    for (const crop of this.spawnedCrops) {
+      crop.destroy();
+    }
+    this.spawnedCrops = [];
+    this.cropsWithCrows.clear();
+
     const wave = this.waves[this.currentWaveIndex];
     this.waveActive = true;
     this.currentWaveSpeed = wave.birdSpeed; // Store current wave speed
@@ -641,9 +649,9 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
         if (crowSet) {
           crowSet.add(crow);
           
-          // Start pulsing if this is the first crow on this crop
+          // Start global pulsing if this is the first crow on any crop
           if (crowSet.size === 1) {
-            this.startCropPulsing(crop);
+            this.startGlobalCropPulsing();
           }
         }
         
@@ -661,9 +669,9 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
         if (crowSet) {
           crowSet.delete(crow);
           
-          // Stop pulsing if no more crows on this crop
+          // Update pulsing when crow leaves (will auto-stop if no crops being eaten)
           if (crowSet.size === 0) {
-            this.stopCropPulsing(crop);
+            // No need to call anything - updateCropPulsing will handle it
           }
         }
         
@@ -907,88 +915,24 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
   }
 
   /**
-   * Starts progressive pulsing for a crop that's being eaten
+   * Starts the global crop pulsing system
    */
-  private startCropPulsing(crop: ENGINE.Actor): void {
-    // Don't start if already pulsing
-    if (this.cropPulseIntervals.has(crop)) return;
+  private startGlobalCropPulsing(): void {
+    if (this.globalPulseInterval) return; // Already running
     
-    const world = this.getWorld();
-    if (!world) return;
-    
-    const startTime = world.getGameTime();
-    const maxDuration = 10.0 / this.currentWaveSpeed; // Adjusted eating time
-    
-    const pulseInterval = setInterval(() => {
-      const currentTime = world.getGameTime();
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / maxDuration, 1.0); // 0 to 1
-      
-      if (progress >= 1.0 || !this.cropCounter) {
-        // Stop pulsing when complete or counter is gone
-        this.stopCropPulsing(crop);
-        return;
-      }
-      
-      // Calculate pulse intensity based on progress
-      // Subtle at start (0.1-0.3), aggressive near end (0.8-1.0)
-      const baseIntensity = 0.1 + (progress * 0.7); // 0.1 to 0.8
-      const pulseIntensity = baseIntensity + (Math.sin(Date.now() * 0.01) * 0.2); // Add oscillation
-      
-      // Calculate pulse speed - faster as it gets more urgent
-      const pulseSpeed = 0.005 + (progress * 0.015); // 0.005 to 0.02
-      
-      if (this.cropCounter) {
-        const container = this.cropCounter.querySelector('#crop-counter-container') as HTMLElement;
-        if (container) {
-          const redValue = Math.floor(255 * pulseIntensity);
-          const alpha = 0.3 + (pulseIntensity * 0.5); // 0.3 to 0.8
-          
-          container.style.backgroundColor = `rgba(${redValue}, 0, 0, ${alpha})`;
-          container.style.borderColor = `rgba(255, ${255 - redValue}, ${255 - redValue}, 1)`;
-          
-          // Scale effect gets more pronounced
-          const scaleAmount = 1 + (pulseIntensity * 0.15); // 1.0 to 1.15
-          container.style.transform = `scale(${scaleAmount})`;
-        }
-      }
+    this.globalPulseInterval = setInterval(() => {
+      this.updateCropPulsing();
     }, 50); // Update every 50ms for smooth animation
-    
-    this.cropPulseIntervals.set(crop, pulseInterval);
-    console.log(`[GameplayManager] 🔴 Started progressive pulsing for crop being eaten`);
   }
-
+  
   /**
-   * Stops pulsing for a crop
+   * Stops the global crop pulsing system
    */
-  private stopCropPulsing(crop: ENGINE.Actor): void {
-    const interval = this.cropPulseIntervals.get(crop);
-    if (interval) {
-      clearInterval(interval);
-      this.cropPulseIntervals.delete(crop);
-      
-      // Reset crop counter appearance
-      if (this.cropCounter) {
-        const container = this.cropCounter.querySelector('#crop-counter-container') as HTMLElement;
-        if (container) {
-          container.style.backgroundColor = 'transparent';
-          container.style.borderColor = 'rgba(255, 255, 255, 0.8)';
-          container.style.transform = 'scale(1)';
-        }
-      }
-      
-      console.log(`[GameplayManager] ⚪ Stopped pulsing for crop`);
+  private stopGlobalCropPulsing(): void {
+    if (this.globalPulseInterval) {
+      clearInterval(this.globalPulseInterval);
+      this.globalPulseInterval = null;
     }
-  }
-
-  /**
-   * Stops all crop pulsing (for cleanup)
-   */
-  private stopAllCropPulsing(): void {
-    for (const [crop, interval] of this.cropPulseIntervals) {
-      clearInterval(interval);
-    }
-    this.cropPulseIntervals.clear();
     
     // Reset crop counter appearance
     if (this.cropCounter) {
@@ -998,6 +942,200 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
         container.style.borderColor = 'rgba(255, 255, 255, 0.8)';
         container.style.transform = 'scale(1)';
       }
+    }
+  }
+
+  /**
+   * Updates the crop counter pulsing based on the most damaged crop
+   */
+  private updateCropPulsing(): void {
+    const world = this.getWorld();
+    if (!world || !this.cropCounter) return;
+    
+    // Find the crop with the highest damage percentage
+    let maxDamagePercent = 0;
+    let mostDamagedCrop: ENGINE.Actor | null = null;
+    
+    for (const [crop, crowSet] of this.cropsWithCrows) {
+      if (crowSet.size > 0) {
+        // Find the crow that's been eating this crop the longest
+        let maxElapsed = 0;
+        for (const crow of crowSet) {
+          const elapsed = crow.getEatingElapsedTime();
+          if (elapsed > maxElapsed) {
+            maxElapsed = elapsed;
+          }
+        }
+        
+        const maxDuration = 10.0 / this.currentWaveSpeed; // Eating time
+        const damagePercent = Math.min(maxElapsed / maxDuration, 1.0);
+        
+        if (damagePercent > maxDamagePercent) {
+          maxDamagePercent = damagePercent;
+          mostDamagedCrop = crop;
+        }
+      }
+    }
+    
+    // Update pulsing based on most damaged crop
+    if (maxDamagePercent > 0 && mostDamagedCrop) {
+      this.applyCropPulsing(maxDamagePercent);
+    } else {
+      this.stopAllCropPulsing();
+    }
+  }
+  
+  /**
+   * Applies pulsing effect based on damage percentage
+   */
+  private applyCropPulsing(damagePercent: number): void {
+    if (!this.cropCounter) return;
+    
+    // Calculate pulse intensity based on damage
+    // Subtle at start (0.1-0.3), aggressive near end (0.8-1.0)
+    const baseIntensity = 0.1 + (damagePercent * 0.7); // 0.1 to 0.8
+    const pulseIntensity = baseIntensity + (Math.sin(Date.now() * 0.01) * 0.2); // Add oscillation
+    
+    const container = this.cropCounter.querySelector('#crop-counter-container') as HTMLElement;
+    if (container) {
+      const redValue = Math.floor(255 * pulseIntensity);
+      const alpha = 0.3 + (pulseIntensity * 0.5); // 0.3 to 0.8
+      
+      container.style.backgroundColor = `rgba(${redValue}, 0, 0, ${alpha})`;
+      container.style.borderColor = `rgba(255, ${255 - redValue}, ${255 - redValue}, 1)`;
+      
+      // Scale effect gets more pronounced
+      const scaleAmount = 1 + (pulseIntensity * 0.15); // 1.0 to 1.15
+      container.style.transform = `scale(${scaleAmount})`;
+    }
+  }
+
+
+  /**
+   * Stops all crop pulsing (for cleanup)
+   */
+  private stopAllCropPulsing(): void {
+    this.stopGlobalCropPulsing();
+  }
+
+  /**
+   * Shows the results screen with star rating based on crop survival
+   */
+  private async showResultsScreen(): Promise<void> {
+    if (!this.uiContainer) return;
+
+    // Calculate survival percentage
+    const survivalPercent = this.totalCropsCount > 0 ? (this.remainingCropsCount / this.totalCropsCount) * 100 : 0;
+    
+    // Determine star rating (5-star system)
+    let stars = 0;
+    if (survivalPercent >= 90) stars = 5;      // 90-100% = 5 stars
+    else if (survivalPercent >= 70) stars = 4; // 70-89% = 4 stars  
+    else if (survivalPercent >= 50) stars = 3; // 50-69% = 3 stars
+    else if (survivalPercent >= 30) stars = 2; // 30-49% = 2 stars
+    else if (survivalPercent > 0) stars = 1;   // 1-29% = 1 star
+    // 0% = 0 stars (game over)
+
+    // Create results screen
+    this.resultsScreen = document.createElement('div');
+    this.resultsScreen.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      pointer-events: all;
+    `;
+
+    // Move counters to center (clone them)
+    const centeredCounters = this.countersContainer?.cloneNode(true) as HTMLElement;
+    if (centeredCounters) {
+      centeredCounters.style.cssText = `
+        position: relative;
+        top: auto;
+        left: auto;
+        transform: none;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 30px;
+      `;
+      this.resultsScreen.appendChild(centeredCounters);
+    }
+
+    // Create star rating container
+    const starContainer = document.createElement('div');
+    starContainer.style.cssText = `
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    `;
+
+    // Add 5 stars (filled or empty based on rating)
+    for (let i = 0; i < 5; i++) {
+      const starElement = document.createElement('img');
+      starElement.src = '@project/assets/textures/UI_Star_01.png';
+      starElement.style.cssText = `
+        width: 60px;
+        height: 60px;
+        opacity: ${i < stars ? '1.0' : '0.3'};
+        filter: ${i < stars ? 'none' : 'grayscale(100%)'};
+      `;
+      starContainer.appendChild(starElement);
+    }
+
+    // Resolve asset paths for stars
+    const resolvedStarContainer = document.createElement('div');
+    resolvedStarContainer.innerHTML = await ENGINE.resolveAssetPathsInText(starContainer.outerHTML);
+    resolvedStarContainer.style.cssText = starContainer.style.cssText;
+
+    this.resultsScreen.appendChild(resolvedStarContainer);
+
+    // Hide the original top counters while showing results
+    if (this.countersContainer) {
+      this.countersContainer.style.display = 'none';
+    }
+
+    // Add to UI
+    this.uiContainer.appendChild(this.resultsScreen);
+
+    // Handle results based on performance
+    if (stars === 0) {
+      // Game over - return to start screen after 3 seconds
+      setTimeout(() => {
+        this.hideResultsScreen();
+        this.resetGame();
+      }, 3000);
+    } else {
+      // Success - show results for 5 seconds then continue
+      setTimeout(() => {
+        this.hideResultsScreen();
+        this.startNextWave();
+      }, 5000);
+    }
+  }
+
+  /**
+   * Hides the results screen
+   */
+  private hideResultsScreen(): void {
+    if (this.resultsScreen && this.uiContainer) {
+      this.uiContainer.removeChild(this.resultsScreen);
+      this.resultsScreen = null;
+    }
+    
+    // Show the original top counters again
+    if (this.countersContainer) {
+      this.countersContainer.style.display = 'flex';
     }
   }
 
@@ -1024,21 +1162,17 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
       
       console.log(`[GameplayManager] ========== WAVE ${this.currentWaveIndex} COMPLETE ==========`);
       console.log(`[GameplayManager] 📊 Final stats: ${this.crowsSpawnedThisWave}/${this.totalCrowsToSpawn} crows spawned, all destroyed`);
+      console.log(`[GameplayManager] 🌽 Crops: ${this.remainingCropsCount}/${this.totalCropsCount} survived (${((this.remainingCropsCount / this.totalCropsCount) * 100).toFixed(1)}%)`);
+      
+      // Stop all pulsing
+      this.stopAllCropPulsing();
       
       if (this.currentWaveIndex < this.waves.length) {
-        this.showMessage('WELL DONE! But More are coming!!', 3000);
-        
-        // Clear crops and stop all pulsing
-        this.stopAllCropPulsing();
-        for (const crop of this.spawnedCrops) {
-          crop.destroy();
-        }
-        this.spawnedCrops = [];
-        
-        // Start next wave after message
-        setTimeout(() => this.startNextWave(), 3500);
+        // Show results screen (will handle next wave automatically)
+        this.showResultsScreen();
       } else {
-        this.showMessage('🎉 YOU WIN! 🎉', 5000);
+        // Final wave complete - show final results
+        this.showResultsScreen();
       }
     }
   }
@@ -1527,8 +1661,7 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
       const cropName = targetCrop.editorData.displayName || targetCrop.name;
       console.log(`[GameplayManager] 🌽 Crop "${cropName}" has been eaten!`);
       
-      // Stop pulsing for this crop and flash red
-      this.stopCropPulsing(targetCrop);
+      // Flash red (pulsing will auto-update when crop is removed from tracking)
       this.flashCropCounterRed();
       
       // Destroy the crop
@@ -1636,17 +1769,8 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     // Stop all crop pulsing
     this.stopAllCropPulsing();
     
-    // Show game over message
-    this.showMessage('💀 ALL CROPS EATEN! GAME OVER 💀', 5000);
-    
-    // Reset to main menu after message
-    const world = this.getWorld();
-    if (world) {
-      world.timerSystem.setTimeout(() => {
-        console.log(`[GameplayManager] 🔄 Returning to main menu...`);
-        this.resetGame();
-      }, 5.5);
-    }
+    // Show results screen (0% survival = 0 stars = game over)
+    this.showResultsScreen();
   }
 
   protected override doEndPlay(): void {

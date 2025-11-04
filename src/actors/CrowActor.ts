@@ -24,9 +24,11 @@ export class CrowActor extends ENGINE.Actor {
   private animComponent: ENGINE.AnimationComponent | null = null;
   private meshParent: ENGINE.SceneComponent | null = null; // Parent to rotate the mesh towards target
   private spawnTime: number = 0; // Track when bird spawned
-  private deadlineTimer: any = null; // Timer handle for 30-second deadline
+  private deadlineTimer: any = null; // Timer handle for deadline
   private deadlineTimerPaused: boolean = false; // Whether the deadline timer is paused
   private deadlineRemainingTime: number = 0; // Remaining time on paused timer
+  private originalDeadlineTime: number = 0; // Original deadline time for elapsed calculation
+  private deadlineStartTime: number = 0; // When the deadline timer started
   public readonly onDeadlineExpired = new ENGINE.Delegate<[CrowActor]>(); // Callback when time runs out
 
   constructor(options: ENGINE.ActorOptions = {}) {
@@ -251,7 +253,9 @@ export class CrowActor extends ENGINE.Actor {
     const world = this.getWorld();
     if (!world) return;
     
+    this.originalDeadlineTime = timeSeconds;
     this.deadlineRemainingTime = timeSeconds;
+    this.deadlineStartTime = world.getGameTime();
     this.deadlineTimerPaused = false;
     
     this.deadlineTimer = world.timerSystem.setTimeout(() => {
@@ -307,6 +311,20 @@ export class CrowActor extends ENGINE.Actor {
     }
     this.deadlineTimerPaused = false;
     this.deadlineRemainingTime = 0;
+  }
+
+  /**
+   * Gets how long this crow has been eating (for damage calculation)
+   */
+  public getEatingElapsedTime(): number {
+    const world = this.getWorld();
+    if (!world || this.originalDeadlineTime === 0 || this.deadlineStartTime === 0) return 0;
+    
+    const currentTime = world.getGameTime();
+    const elapsedTime = currentTime - this.deadlineStartTime;
+    
+    // Clamp to original deadline time (can't exceed 100% damage)
+    return Math.min(elapsedTime, this.originalDeadlineTime);
   }
 
   protected override doEndPlay(): void {

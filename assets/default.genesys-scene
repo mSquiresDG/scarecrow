@@ -1038,14 +1038,14 @@
         "actorTags": [],
         "rootComponent": {
           "class": "ENGINE.GLTFMeshComponent",
-          "uuid": "ea83f28c-0495-4ec3-b34d-fdd61090551d",
+          "uuid": "9aa6f683-0576-41cc-b4be-13556e8ca2ae",
           "ctor": {
             "modelUrl": "@project/assets/models/scareCrow/SM_ScareCrow_Stick.glb"
           },
           "children": [
             {
               "class": "ENGINE.GLTFMeshComponent",
-              "uuid": "1a88dac6-9729-4310-917e-d6df1c85a141",
+              "uuid": "ecb5fb0d-1927-4b2f-b0a1-ffda46fee3d6",
               "ctor": {
                 "modelUrl": "@project/assets/models/scareCrow/SM_ScareCrow_Tshirt.glb"
               },
@@ -1060,7 +1060,7 @@
             },
             {
               "class": "ENGINE.GLTFMeshComponent",
-              "uuid": "638c77ac-02ed-446c-9029-84688e3544c3",
+              "uuid": "38254f90-44a1-48e4-bf94-b64bf4bc13d5",
               "ctor": {
                 "modelUrl": "@project/assets/models/scareCrow/SM_Scarecrow_Head.glb"
               },
@@ -1075,7 +1075,7 @@
             },
             {
               "class": "ENGINE.GLTFMeshComponent",
-              "uuid": "8757e36f-54a0-4a86-8681-422a70d02894",
+              "uuid": "3adfe703-cef8-42b1-bf49-7f4d536c20d6",
               "ctor": {
                 "modelUrl": "@project/assets/models/scareCrow/SM_ScareCrow_Hat.glb"
               },

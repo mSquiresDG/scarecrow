@@ -68,6 +68,12 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
   private birdCounter: HTMLElement | null = null;
   private birdCounterText: HTMLElement | null = null;
   private destroyedBirdsCount: number = 0;
+  private cropCounter: HTMLElement | null = null;
+  private cropCounterText: HTMLElement | null = null;
+  private totalCropsCount: number = 0;
+  private remainingCropsCount: number = 0;
+  private countersContainer: HTMLElement | null = null;
+  private cropPulseIntervals: Map<ENGINE.Actor, any> = new Map(); // Track pulsing intervals for crops
 
   constructor(options: GameplayManagerOptions = {}) {
     const mergedOptions = { ...GameplayManager.DEFAULT_OPTIONS, ...options };
@@ -130,7 +136,7 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     this.startButton.innerHTML = await ENGINE.resolveAssetPathsInText(buttonHTML);
     
     this.startButton.style.cssText = `
-      position: absolute;
+      position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
@@ -141,7 +147,10 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       animation: pulse 2s ease-in-out infinite;
+      margin: 0;
+      padding: 0;
     `;
     
     // Add CSS animation for pulsing
@@ -205,9 +214,71 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
       box-shadow: 0 4px 20px rgba(0,0,0,0.8);
     `;
 
-    // Bird counter
+    // Create a single container for both counters
+    this.countersContainer = document.createElement('div');
+    this.countersContainer.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+      z-index: 1001;
+      pointer-events: none;
+    `;
+
+    // Create crop counter (left side)
+    this.cropCounter = document.createElement('div');
+    const cropCounterHTML = `
+      <div id="crop-counter-container" style="
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2px;
+        padding: 4px;
+        background: transparent;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        border-radius: 8px;
+        box-shadow: 0 0.3vh 1vh rgba(0,0,0,0.3);
+        height: 7.5vh;
+        width: 5vw;
+        min-width: 60px;
+        min-height: 75px;
+        max-width: 100px;
+        max-height: 120px;
+        box-sizing: border-box;
+        transition: all 0.3s ease;
+      ">
+        <img src="@project/assets/textures/T_Cob_01.png" alt="Crop" style="
+          width: 32px;
+          height: 90px;
+          object-fit: contain;
+          flex-shrink: 0;
+        ">
+        <span id="crop-count-text" style="
+          font-size: 20px;
+          font-weight: bold;
+          color: white;
+          text-align: right;
+          flex-shrink: 0;
+          transform: scaleY(4.5);
+          margin-right: 2px;
+        ">00</span>
+      </div>
+    `;
+    
+    // Resolve asset paths in the HTML
+    this.cropCounter.innerHTML = await ENGINE.resolveAssetPathsInText(cropCounterHTML);
+    
+    // Get reference to the crop counter text element
+    this.cropCounterText = this.cropCounter.querySelector('#crop-count-text');
+
+    // Create bird counter (right side)
     this.birdCounter = document.createElement('div');
-    const counterHTML = `
+    const birdCounterHTML = `
       <div style="
         display: flex;
         flex-direction: row;
@@ -219,8 +290,12 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
         border: 2px solid rgba(255, 255, 255, 0.8);
         border-radius: 8px;
         box-shadow: 0 0.3vh 1vh rgba(0,0,0,0.3);
-        height: 100%;
-        width: 100%;
+        height: 7.5vh;
+        width: 5vw;
+        min-width: 60px;
+        min-height: 75px;
+        max-width: 100px;
+        max-height: 120px;
         box-sizing: border-box;
       ">
         <img src="@project/assets/textures/UI_CrowFacing_01.png" alt="Bird" style="
@@ -242,30 +317,18 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     `;
     
     // Resolve asset paths in the HTML
-    this.birdCounter.innerHTML = await ENGINE.resolveAssetPathsInText(counterHTML);
+    this.birdCounter.innerHTML = await ENGINE.resolveAssetPathsInText(birdCounterHTML);
     
-    // Top of screen positioning - tight to the very top
-    this.birdCounter.style.cssText = `
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 5vw;
-      height: 7.5vh;
-      min-width: 60px;
-      min-height: 75px;
-      max-width: 100px;
-      max-height: 120px;
-      z-index: 1001;
-      pointer-events: none;
-    `;
-    
-    // Get reference to the counter text element
+    // Get reference to the bird counter text element
     this.birdCounterText = this.birdCounter.querySelector('#bird-count-text');
+
+    // Add both counters to the container
+    this.countersContainer.appendChild(this.cropCounter);
+    this.countersContainer.appendChild(this.birdCounter);
 
     this.uiContainer.appendChild(this.startButton);
     this.uiContainer.appendChild(this.messageOverlay);
-    this.uiContainer.appendChild(this.birdCounter);
+    this.uiContainer.appendChild(this.countersContainer);
     world.gameContainer.appendChild(this.uiContainer);
   }
 
@@ -291,6 +354,11 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     // Reset bird counter
     this.destroyedBirdsCount = 0;
     this.updateBirdCounterDisplay();
+    
+    // Reset crop counter (will be set when crops spawn)
+    this.totalCropsCount = 0;
+    this.remainingCropsCount = 0;
+    this.updateCropCounterDisplay();
     
     // Find all crow spawners in the scene
     const world = this.getWorld();
@@ -373,6 +441,9 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     this.activeCrows = [];
     this.pausedCrows = [];
     
+    // Stop all crop pulsing
+    this.stopAllCropPulsing();
+    
     // Show game over message
     this.showMessage('⏰ TIME\'S UP! GAME OVER ⏰', 5000);
     
@@ -413,6 +484,9 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     // Clear all tracking
     this.cropsWithCrows.clear();
     
+    // Stop all crop pulsing
+    this.stopAllCropPulsing();
+    
     // Reset game state
     this.currentWaveIndex = 0;
     this.gameStarted = false;
@@ -426,6 +500,11 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     // Reset bird counter
     this.destroyedBirdsCount = 0;
     this.updateBirdCounterDisplay();
+    
+    // Reset crop counter
+    this.totalCropsCount = 0;
+    this.remainingCropsCount = 0;
+    this.updateCropCounterDisplay();
     
     // Show start button again
     if (this.startButton) {
@@ -489,6 +568,11 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     
     console.log(`[GameplayManager] Successfully spawned and initialized ${this.spawnedCrops.length} crops`);
     
+    // Initialize crop counter
+    this.totalCropsCount = this.spawnedCrops.length;
+    this.remainingCropsCount = this.totalCropsCount;
+    this.updateCropCounterDisplay();
+    
     // Build list of available crop markers (only those with spawned crops)
     this.buildAvailableCropMarkersList();
   }
@@ -547,6 +631,11 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
         const crowSet = this.cropsWithCrows.get(crop);
         if (crowSet) {
           crowSet.add(crow);
+          
+          // Start pulsing if this is the first crow on this crop
+          if (crowSet.size === 1) {
+            this.startCropPulsing(crop);
+          }
         }
         
         crow.setRedShader(true);
@@ -562,6 +651,11 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
         const crowSet = this.cropsWithCrows.get(crop);
         if (crowSet) {
           crowSet.delete(crow);
+          
+          // Stop pulsing if no more crows on this crop
+          if (crowSet.size === 0) {
+            this.stopCropPulsing(crop);
+          }
         }
         
         crow.setRedShader(false);
@@ -641,8 +735,8 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
       this.handleCrowDeadline(expiredCrow);
     });
     
-    // Start deadline timer with adjusted time (20 seconds / speed multiplier)
-    const baseDeadline = 20.0; // Base deadline in seconds
+    // Start deadline timer with adjusted time (10 seconds / speed multiplier)
+    const baseDeadline = 10.0; // Base deadline in seconds
     const adjustedDeadline = baseDeadline / this.currentWaveSpeed; // Higher speed = shorter deadline
     crow.startDeadlineTimer(adjustedDeadline);
     console.log(`[GameplayManager] ⏰ Crow deadline set to ${adjustedDeadline.toFixed(1)}s (base ${baseDeadline}s / speed ${this.currentWaveSpeed}x)`);
@@ -768,6 +862,136 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     }
   }
 
+  /**
+   * Updates the crop counter display with the current count
+   */
+  private updateCropCounterDisplay(): void {
+    if (this.cropCounterText) {
+      // Format count as two digits (00, 01, 02, etc.)
+      const formattedCount = this.remainingCropsCount.toString().padStart(2, '0');
+      this.cropCounterText.textContent = formattedCount;
+    }
+  }
+
+  /**
+   * Makes the crop counter flash red when crops are being eaten
+   */
+  private flashCropCounterRed(): void {
+    if (!this.cropCounter) return;
+    
+    const container = this.cropCounter.querySelector('#crop-counter-container') as HTMLElement;
+    if (!container) return;
+    
+    // Add red flash effect
+    container.style.backgroundColor = 'rgba(255, 0, 0, 0.8)';
+    container.style.borderColor = 'red';
+    container.style.transform = 'scale(1.1)';
+    
+    // Remove effect after 500ms
+    setTimeout(() => {
+      if (container) {
+        container.style.backgroundColor = 'transparent';
+        container.style.borderColor = 'rgba(255, 255, 255, 0.8)';
+        container.style.transform = 'scale(1)';
+      }
+    }, 500);
+  }
+
+  /**
+   * Starts progressive pulsing for a crop that's being eaten
+   */
+  private startCropPulsing(crop: ENGINE.Actor): void {
+    // Don't start if already pulsing
+    if (this.cropPulseIntervals.has(crop)) return;
+    
+    const world = this.getWorld();
+    if (!world) return;
+    
+    const startTime = world.getGameTime();
+    const maxDuration = 10.0 / this.currentWaveSpeed; // Adjusted eating time
+    
+    const pulseInterval = setInterval(() => {
+      const currentTime = world.getGameTime();
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / maxDuration, 1.0); // 0 to 1
+      
+      if (progress >= 1.0 || !this.cropCounter) {
+        // Stop pulsing when complete or counter is gone
+        this.stopCropPulsing(crop);
+        return;
+      }
+      
+      // Calculate pulse intensity based on progress
+      // Subtle at start (0.1-0.3), aggressive near end (0.8-1.0)
+      const baseIntensity = 0.1 + (progress * 0.7); // 0.1 to 0.8
+      const pulseIntensity = baseIntensity + (Math.sin(Date.now() * 0.01) * 0.2); // Add oscillation
+      
+      // Calculate pulse speed - faster as it gets more urgent
+      const pulseSpeed = 0.005 + (progress * 0.015); // 0.005 to 0.02
+      
+      if (this.cropCounter) {
+        const container = this.cropCounter.querySelector('#crop-counter-container') as HTMLElement;
+        if (container) {
+          const redValue = Math.floor(255 * pulseIntensity);
+          const alpha = 0.3 + (pulseIntensity * 0.5); // 0.3 to 0.8
+          
+          container.style.backgroundColor = `rgba(${redValue}, 0, 0, ${alpha})`;
+          container.style.borderColor = `rgba(255, ${255 - redValue}, ${255 - redValue}, 1)`;
+          
+          // Scale effect gets more pronounced
+          const scaleAmount = 1 + (pulseIntensity * 0.15); // 1.0 to 1.15
+          container.style.transform = `scale(${scaleAmount})`;
+        }
+      }
+    }, 50); // Update every 50ms for smooth animation
+    
+    this.cropPulseIntervals.set(crop, pulseInterval);
+    console.log(`[GameplayManager] 🔴 Started progressive pulsing for crop being eaten`);
+  }
+
+  /**
+   * Stops pulsing for a crop
+   */
+  private stopCropPulsing(crop: ENGINE.Actor): void {
+    const interval = this.cropPulseIntervals.get(crop);
+    if (interval) {
+      clearInterval(interval);
+      this.cropPulseIntervals.delete(crop);
+      
+      // Reset crop counter appearance
+      if (this.cropCounter) {
+        const container = this.cropCounter.querySelector('#crop-counter-container') as HTMLElement;
+        if (container) {
+          container.style.backgroundColor = 'transparent';
+          container.style.borderColor = 'rgba(255, 255, 255, 0.8)';
+          container.style.transform = 'scale(1)';
+        }
+      }
+      
+      console.log(`[GameplayManager] ⚪ Stopped pulsing for crop`);
+    }
+  }
+
+  /**
+   * Stops all crop pulsing (for cleanup)
+   */
+  private stopAllCropPulsing(): void {
+    for (const [crop, interval] of this.cropPulseIntervals) {
+      clearInterval(interval);
+    }
+    this.cropPulseIntervals.clear();
+    
+    // Reset crop counter appearance
+    if (this.cropCounter) {
+      const container = this.cropCounter.querySelector('#crop-counter-container') as HTMLElement;
+      if (container) {
+        container.style.backgroundColor = 'transparent';
+        container.style.borderColor = 'rgba(255, 255, 255, 0.8)';
+        container.style.transform = 'scale(1)';
+      }
+    }
+  }
+
   private checkWaveComplete(): void {
     // Wave is complete when:
     // 1. All crows have been spawned (crowsSpawnedThisWave === totalCrowsToSpawn)
@@ -795,7 +1019,8 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
       if (this.currentWaveIndex < this.waves.length) {
         this.showMessage('WELL DONE! But More are coming!!', 3000);
         
-        // Clear crops
+        // Clear crops and stop all pulsing
+        this.stopAllCropPulsing();
         for (const crop of this.spawnedCrops) {
           crop.destroy();
         }
@@ -824,28 +1049,201 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     const world = this.getWorld();
     if (!world) return;
 
-    // Find and hide the nipplejs joystick zones
     const gameContainer = world.gameContainer;
     
-    // Query for all joystick zones created by nipplejs
-    const joystickZones = gameContainer.querySelectorAll('[style*="position: absolute"][style*="bottom: 20px"]');
+    console.log('[GameplayManager] 🔍 DEBUG: Starting thumbstick detection...');
+    console.log('[GameplayManager] 🔍 DEBUG: Game container:', gameContainer);
+    console.log('[GameplayManager] 🔍 DEBUG: Game container children count:', gameContainer.children.length);
     
-    joystickZones.forEach((zone) => {
+    // Log all children of game container for debugging
+    Array.from(gameContainer.children).forEach((child, index) => {
+      const element = child as HTMLElement;
+      console.log(`[GameplayManager] 🔍 DEBUG: Child ${index}:`, {
+        tagName: element.tagName,
+        className: element.className,
+        id: element.id,
+        style: element.style.cssText,
+        innerHTML: element.innerHTML.substring(0, 100) + (element.innerHTML.length > 100 ? '...' : '')
+      });
+    });
+    
+    // Method 1: Find by position styling
+    const joystickZones = gameContainer.querySelectorAll('[style*="position: absolute"][style*="bottom: 20px"]');
+    console.log(`[GameplayManager] 🔍 DEBUG: Found ${joystickZones.length} elements with position absolute + bottom 20px`);
+    
+    joystickZones.forEach((zone, index) => {
       const element = zone as HTMLElement;
+      console.log(`[GameplayManager] 🔍 DEBUG: Joystick zone ${index}:`, {
+        tagName: element.tagName,
+        className: element.className,
+        id: element.id,
+        style: element.style.cssText,
+        left: element.style.left,
+        right: element.style.right,
+        bottom: element.style.bottom
+      });
+      
       // Check if it's positioned at left or right (nipplejs zones)
       if (element.style.left === '20px' || element.style.right === '20px') {
         element.style.display = 'none';
-        console.log('[GameplayManager] 🎮 Hidden mobile joystick zone');
+        console.log('[GameplayManager] 🎮 Hidden mobile joystick zone via position');
       }
     });
 
-    // Alternative: Hide by looking for nipplejs-specific classes
+    // Method 2: Find by nipple classes
     const nippleElements = gameContainer.querySelectorAll('[class*="nipple"]');
-    nippleElements.forEach((element) => {
-      (element as HTMLElement).style.display = 'none';
+    console.log(`[GameplayManager] 🔍 DEBUG: Found ${nippleElements.length} elements with 'nipple' in class name`);
+    
+    nippleElements.forEach((element, index) => {
+      const htmlElement = element as HTMLElement;
+      console.log(`[GameplayManager] 🔍 DEBUG: Nipple element ${index}:`, {
+        tagName: htmlElement.tagName,
+        className: htmlElement.className,
+        id: htmlElement.id,
+        style: htmlElement.style.cssText
+      });
+      htmlElement.style.display = 'none';
+      console.log('[GameplayManager] 🎮 Hidden nipple element via class name');
     });
 
-    console.log(`[GameplayManager] 🎮 Mobile joysticks hidden (tap-based game only)`);
+    // Method 3: Find by common joystick/gamepad patterns
+    const gamepadElements = gameContainer.querySelectorAll('[class*="gamepad"], [class*="joystick"], [class*="virtual"], [id*="joystick"], [id*="gamepad"]');
+    console.log(`[GameplayManager] 🔍 DEBUG: Found ${gamepadElements.length} elements with gamepad/joystick patterns`);
+    
+    gamepadElements.forEach((element, index) => {
+      const htmlElement = element as HTMLElement;
+      console.log(`[GameplayManager] 🔍 DEBUG: Gamepad element ${index}:`, {
+        tagName: htmlElement.tagName,
+        className: htmlElement.className,
+        id: htmlElement.id,
+        style: htmlElement.style.cssText
+      });
+      htmlElement.style.display = 'none';
+      console.log('[GameplayManager] 🎮 Hidden gamepad element via pattern matching');
+    });
+
+    // Method 4: Find elements positioned at bottom corners (common for mobile controls)
+    const bottomElements = gameContainer.querySelectorAll('[style*="bottom:"], [style*="bottom "]');
+    console.log(`[GameplayManager] 🔍 DEBUG: Found ${bottomElements.length} elements with bottom positioning`);
+    
+    bottomElements.forEach((element, index) => {
+      const htmlElement = element as HTMLElement;
+      const style = htmlElement.style.cssText.toLowerCase();
+      
+      // Check if it looks like a mobile control (positioned at bottom corners)
+      if ((style.includes('left') || style.includes('right')) && 
+          (style.includes('bottom') && !style.includes('border'))) {
+        console.log(`[GameplayManager] 🔍 DEBUG: Bottom corner element ${index}:`, {
+          tagName: htmlElement.tagName,
+          className: htmlElement.className,
+          id: htmlElement.id,
+          style: htmlElement.style.cssText
+        });
+        
+        // Don't hide our own UI elements
+        if (!htmlElement.closest('#game-container > div') || 
+            htmlElement.closest('[class*="crop"], [class*="bird"]')) {
+          htmlElement.style.display = 'none';
+          console.log('[GameplayManager] 🎮 Hidden bottom corner element (likely mobile control)');
+        }
+      }
+    });
+
+    console.log(`[GameplayManager] 🎮 Mobile joystick detection complete`);
+    
+    // Also check again after a delay in case controls are created later
+    setTimeout(() => {
+      console.log('[GameplayManager] 🔍 DEBUG: Running delayed thumbstick check...');
+      this.hideMobileJoysticksDelayed();
+    }, 2000);
+    
+    setTimeout(() => {
+      console.log('[GameplayManager] 🔍 DEBUG: Running final thumbstick check...');
+      this.hideMobileJoysticksDelayed();
+    }, 5000);
+    
+    // Set up continuous monitoring every 3 seconds
+    setInterval(() => {
+      this.hideMobileJoysticksDelayed();
+    }, 3000);
+  }
+
+  /**
+   * Aggressive removal of mobile joysticks - completely destroys them
+   */
+  private hideMobileJoysticksDelayed(): void {
+    const world = this.getWorld();
+    if (!world) return;
+
+    const gameContainer = world.gameContainer;
+    
+    // Check for any new elements that might be mobile controls
+    const allElements = gameContainer.querySelectorAll('*');
+    console.log(`[GameplayManager] 🔍 DEBUG: Delayed check - scanning ${allElements.length} total elements`);
+    
+    let removedCount = 0;
+    const elementsToRemove: HTMLElement[] = [];
+    
+    allElements.forEach((element) => {
+      const htmlElement = element as HTMLElement;
+      const style = htmlElement.style.cssText.toLowerCase();
+      const className = htmlElement.className.toLowerCase();
+      const id = htmlElement.id.toLowerCase();
+      
+      // Specific patterns we found in the debug output
+      const isNippleControl = 
+        className.includes('nipple') ||
+        className.includes('collection_') ||
+        id.includes('nipple_') ||
+        // Anonymous containers with joystick dimensions
+        (style.includes('width: 180px') && style.includes('height: 180px') && 
+         style.includes('bottom: 20px') && (style.includes('left: 20px') || style.includes('right: 20px'))) ||
+        // General mobile control patterns
+        className.includes('joystick') ||
+        className.includes('gamepad') ||
+        className.includes('virtual') ||
+        id.includes('joystick') ||
+        id.includes('gamepad');
+      
+      if (isNippleControl) {
+        console.log(`[GameplayManager] 🔍 DEBUG: Found mobile control for removal:`, {
+          tagName: htmlElement.tagName,
+          className: htmlElement.className,
+          id: htmlElement.id,
+          style: htmlElement.style.cssText
+        });
+        elementsToRemove.push(htmlElement);
+      }
+    });
+    
+    // Remove elements completely from DOM
+    elementsToRemove.forEach((element) => {
+      try {
+        // First hide it
+        element.style.display = 'none';
+        element.style.visibility = 'hidden';
+        element.style.opacity = '0';
+        element.style.pointerEvents = 'none';
+        
+        // Then remove from DOM
+        if (element.parentNode) {
+          element.parentNode.removeChild(element);
+          removedCount++;
+          console.log('[GameplayManager] 🗑️ REMOVED mobile control from DOM');
+        }
+      } catch (error) {
+        console.log('[GameplayManager] ⚠️ Could not remove element:', error);
+        // Fallback to hiding
+        element.style.display = 'none';
+        element.style.visibility = 'hidden';
+        element.style.opacity = '0';
+        element.style.pointerEvents = 'none';
+        removedCount++;
+        console.log('[GameplayManager] 🎮 Hidden mobile control (fallback)');
+      }
+    });
+    
+    console.log(`[GameplayManager] 🎮 Aggressive removal complete - removed/hidden ${removedCount} elements`);
   }
 
   /**
@@ -1078,6 +1476,10 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
       const cropName = targetCrop.editorData.displayName || targetCrop.name;
       console.log(`[GameplayManager] 🌽 Crop "${cropName}" has been eaten!`);
       
+      // Stop pulsing for this crop and flash red
+      this.stopCropPulsing(targetCrop);
+      this.flashCropCounterRed();
+      
       // Destroy the crop
       targetCrop.destroy();
       
@@ -1087,6 +1489,10 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
         this.spawnedCrops.splice(index, 1);
       }
       this.cropsWithCrows.delete(targetCrop);
+      
+      // Update crop counter
+      this.remainingCropsCount = this.spawnedCrops.length;
+      this.updateCropCounterDisplay();
       
       console.log(`[GameplayManager] 📊 Crops remaining: ${this.spawnedCrops.length}`);
       
@@ -1176,6 +1582,9 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     this.pausedCrows = [];
     this.cropsWithCrows.clear();
     
+    // Stop all crop pulsing
+    this.stopAllCropPulsing();
+    
     // Show game over message
     this.showMessage('💀 ALL CROPS EATEN! GAME OVER 💀', 5000);
     
@@ -1215,6 +1624,9 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     for (const crow of this.pausedCrows) {
       crow.cancelDeadlineTimer();
     }
+    
+    // Stop all crop pulsing
+    this.stopAllCropPulsing();
   }
 }
 

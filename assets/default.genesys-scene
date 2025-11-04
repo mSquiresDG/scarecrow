@@ -845,20 +845,38 @@
         "actorTags": [],
         "wave1": [
           5,
-          10,
-          1,
+          5,
+          1.2,
           "v"
         ],
         "wave2": [
           10,
-          15,
-          1,
+          10,
+          1.6,
           "v"
         ],
         "wave3": [
           15,
+          25,
+          3,
+          "v"
+        ],
+        "wave4": [
+          4,
+          10,
+          4,
+          "v"
+        ],
+        "wave5": [
+          12,
+          5,
+          5,
+          "v"
+        ],
+        "wave6": [
           20,
-          2,
+          20,
+          6,
           "v"
         ],
         "rootComponent": {
@@ -1038,14 +1056,14 @@
         "actorTags": [],
         "rootComponent": {
           "class": "ENGINE.GLTFMeshComponent",
-          "uuid": "dd162d56-1997-44f7-a2cf-5310315c78fe",
+          "uuid": "fa81fdb9-832b-4344-9c36-0db349f84bd2",
           "ctor": {
             "modelUrl": "@project/assets/models/scareCrow/SM_ScareCrow_Stick.glb"
           },
           "children": [
             {
               "class": "ENGINE.GLTFMeshComponent",
-              "uuid": "a3980fbc-137d-45c8-98bd-dbb8f40ece0a",
+              "uuid": "9cadeeaf-1d38-4973-8a6d-f239255bf0d9",
               "ctor": {
                 "modelUrl": "@project/assets/models/scareCrow/SM_ScareCrow_Tshirt.glb"
               },
@@ -1060,7 +1078,7 @@
             },
             {
               "class": "ENGINE.GLTFMeshComponent",
-              "uuid": "eca660c4-bebe-4791-810d-b9f53f0d9bc4",
+              "uuid": "bfc61c80-6cce-456f-9de1-b760030f308d",
               "ctor": {
                 "modelUrl": "@project/assets/models/scareCrow/SM_Scarecrow_Head.glb"
               },
@@ -1075,7 +1093,7 @@
             },
             {
               "class": "ENGINE.GLTFMeshComponent",
-              "uuid": "028fcfab-2be6-4e94-9841-d2f313410aed",
+              "uuid": "3dde95f2-3bc1-42e1-998b-64fe566c8634",
               "ctor": {
                 "modelUrl": "@project/assets/models/scareCrow/SM_ScareCrow_Hat.glb"
               },

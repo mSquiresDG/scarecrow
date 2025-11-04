@@ -18,6 +18,9 @@ export interface GameplayManagerOptions extends ENGINE.ActorOptions {
   wave1?: THREE.Vector3; // X=CropNo, Y=CrowNo, Z=Speed
   wave2?: THREE.Vector3; // X=CropNo, Y=CrowNo, Z=Speed
   wave3?: THREE.Vector3; // X=CropNo, Y=CrowNo, Z=Speed
+  wave4?: THREE.Vector3; // X=CropNo, Y=CrowNo, Z=Speed
+  wave5?: THREE.Vector3; // X=CropNo, Y=CrowNo, Z=Speed
+  wave6?: THREE.Vector3; // X=CropNo, Y=CrowNo, Z=Speed
 }
 
 /**
@@ -33,6 +36,9 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     wave1: {},
     wave2: {},
     wave3: {},
+    wave4: {},
+    wave5: {},
+    wave6: {},
   } as const;
 
   static override get DEFAULT_OPTIONS(): GameplayManagerOptions {
@@ -42,6 +48,9 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
       wave1: new THREE.Vector3(2, 2, 1),
       wave2: new THREE.Vector3(2.5, 2.5, 1),
       wave3: new THREE.Vector3(3, 3, 1),
+      wave4: new THREE.Vector3(4, 4, 1.2),
+      wave5: new THREE.Vector3(5, 5, 1.5),
+      wave6: new THREE.Vector3(6, 6, 2),
     };
   }
 
@@ -96,6 +105,21 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
         cropCount: Math.round(mergedOptions.wave3!.x),
         birdCount: Math.round(mergedOptions.wave3!.y),
         birdSpeed: mergedOptions.wave3!.z,
+      },
+      {
+        cropCount: Math.round(mergedOptions.wave4!.x),
+        birdCount: Math.round(mergedOptions.wave4!.y),
+        birdSpeed: mergedOptions.wave4!.z,
+      },
+      {
+        cropCount: Math.round(mergedOptions.wave5!.x),
+        birdCount: Math.round(mergedOptions.wave5!.y),
+        birdSpeed: mergedOptions.wave5!.z,
+      },
+      {
+        cropCount: Math.round(mergedOptions.wave6!.x),
+        birdCount: Math.round(mergedOptions.wave6!.y),
+        birdSpeed: mergedOptions.wave6!.z,
       },
     ];
     
@@ -398,6 +422,10 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
     }
     this.spawnedCrops = [];
     this.cropsWithCrows.clear();
+
+    // Reset bird counter for new wave
+    this.destroyedBirdsCount = 0;
+    this.updateBirdCounterDisplay();
 
     const wave = this.waves[this.currentWaveIndex];
     this.waveActive = true;
@@ -1052,6 +1080,19 @@ export class GameplayManager extends ENGINE.Actor<GameplayManagerOptions> {
       z-index: 2000;
       pointer-events: all;
     `;
+
+    // Add wave indicator text
+    const waveText = document.createElement('div');
+    waveText.textContent = `WAVE ${this.currentWaveIndex}`;
+    waveText.style.cssText = `
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    `;
+    this.resultsScreen.appendChild(waveText);
 
     // Move counters to center (clone them)
     const centeredCounters = this.countersContainer?.cloneNode(true) as HTMLElement;

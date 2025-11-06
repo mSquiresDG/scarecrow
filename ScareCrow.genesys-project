@@ -1,5 +1,6 @@
 {
   "defaultScene": "./assets/default.genesys-scene",
   "defaultEditorScene": "./assets/default.genesys-scene",
-  "gameId": "a94403e1-9e0d-41eb-9495-b2e92b96e368"
+  "gameId": "a94403e1-9e0d-41eb-9495-b2e92b96e368",
+  "engineVersion": "1.0.0"
 }

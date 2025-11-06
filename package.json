@@ -12,7 +12,7 @@
   "keywords": [],
   "type": "module",
   "dependencies": {
-    "genesys.js": "^0.22.39"
+    "genesys.js": "^1.0.0"
   },
   "devDependencies": {
     "canvas": "^3.1.0",

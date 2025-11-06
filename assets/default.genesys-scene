@@ -296,7 +296,7 @@
             "position": [
               1.49,
               0.02,
-              0.86,
+              1.3,
               "v"
             ],
             "name": "GLTFMeshComponent"
@@ -522,7 +522,7 @@
             "position": [
               1.96,
               0.02,
-              0.86,
+              1.3,
               "v"
             ],
             "name": "GLTFMeshComponent"
@@ -554,7 +554,7 @@
             "position": [
               2.44,
               0.02,
-              0.86,
+              1.3,
               "v"
             ],
             "name": "GLTFMeshComponent"
@@ -1056,14 +1056,14 @@
         "actorTags": [],
         "rootComponent": {
           "class": "ENGINE.GLTFMeshComponent",
-          "uuid": "fa81fdb9-832b-4344-9c36-0db349f84bd2",
+          "uuid": "a4459443-5d6a-4d18-bc8f-66851fc1e612",
           "ctor": {
             "modelUrl": "@project/assets/models/scareCrow/SM_ScareCrow_Stick.glb"
           },
           "children": [
             {
               "class": "ENGINE.GLTFMeshComponent",
-              "uuid": "9cadeeaf-1d38-4973-8a6d-f239255bf0d9",
+              "uuid": "36e3030c-66cb-46ad-b0d7-c6792a47ba41",
               "ctor": {
                 "modelUrl": "@project/assets/models/scareCrow/SM_ScareCrow_Tshirt.glb"
               },
@@ -1078,7 +1078,7 @@
             },
             {
               "class": "ENGINE.GLTFMeshComponent",
-              "uuid": "bfc61c80-6cce-456f-9de1-b760030f308d",
+              "uuid": "cbb762de-7cec-44a1-a94d-a4eaf763d4a9",
               "ctor": {
                 "modelUrl": "@project/assets/models/scareCrow/SM_Scarecrow_Head.glb"
               },
@@ -1093,7 +1093,7 @@
             },
             {
               "class": "ENGINE.GLTFMeshComponent",
-              "uuid": "3dde95f2-3bc1-42e1-998b-64fe566c8634",
+              "uuid": "72cbe8c0-e3fd-4998-ba8b-70c527b0414e",
               "ctor": {
                 "modelUrl": "@project/assets/models/scareCrow/SM_ScareCrow_Hat.glb"
               },
